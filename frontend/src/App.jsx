@@ -1,10 +1,27 @@
-function App() {
+
+// src/App.jsx
+import { Routes, Route } from "react-router-dom";
+
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
+import Home from "./pages/Home";
+import AnalyzeJD from "./pages/AnalyzeJD";
+import Dashboard from "./pages/Dashboard";
+
+export default function App() {
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>JobFit AI</h1>
-      <p>Paste a job description to analyze</p>
-    </div>
+    <>
+      {/* Navbar must be here */}
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/analyze" element={<AnalyzeJD />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+
+      <Footer />
+    </>
   );
 }
-
-export default App;
