@@ -1,15 +1,35 @@
 // src/pages/AnalyzeJD.jsx
 import { useState } from 'react';
+import { analyzeJD } from "../services/api";
 
 function AnalyzeJD() {
   const [jobDescription, setJobDescription] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleAnalyze = () => {
+
+  const handleAnalyze = async () => {
+    if (!jobDescription.trim()) {
+        setError("Please paste a job description first.");
+        return;
+    }
+
     setAnalyzing(true);
-    // Simulate analysis
-    setTimeout(() => setAnalyzing(false), 3000);
+    setError(null);
+    setResult(null);
+
+    try {
+        const response = await analyzeJD({ jobDescription });
+        setResult(response.data);
+
+    } catch (err) {
+        setError("Failed to analyze job description. Please try again.");
+    } finally {
+        setAnalyzing(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden pt-32 pb-20 px-6">
@@ -141,21 +161,39 @@ function AnalyzeJD() {
           <p className="text-sm text-gray-500 mt-4">Analysis typically takes 2-3 seconds</p>
         </div>
 
-        {/* Results Container (Empty State) */}
-        <div className="glass-heavy border border-white/5 rounded-3xl p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 rounded-2xl flex items-center justify-center">
-            <svg className="w-10 h-10 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-3">Your Results Will Appear Here</h3>
-          <p className="text-gray-400 max-w-md mx-auto">
-            Upload your resume and job description to see your match score, skill gaps, and personalized recommendations
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+        <div className="glass-heavy border border-white/5 rounded-3xl p-12">
+            {error && (
+                <p className="text-red-400 text-center font-semibold">{error}</p>
+            )}
+
+            {!result && !error && (
+                <div className="text-center">
+                <h3 className="text-2xl font-bold text-white mb-3">
+                    Your Results Will Appear Here
+                </h3>
+                <p className="text-gray-400 max-w-md mx-auto">
+                    Upload your resume and job description to see your match score,
+                    skill gaps, and recommendations.
+                </p>
+                </div>
+            )}
+
+            {result && (
+                <div className="space-y-6">
+                <h3 className="text-3xl font-bold text-white">
+                    Analysis Output (Raw)
+                </h3>
+
+                <pre className="bg-slate-900/60 p-6 rounded-xl text-gray-300 overflow-auto">
+                    {JSON.stringify(result, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div> 
+
+        </div> 
+      </div> 
+    );
 }
 
 export default AnalyzeJD;
