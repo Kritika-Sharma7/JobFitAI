@@ -5,4 +5,4 @@ const API = axios.create({
 });
 
 export const analyzeJD = (data) =>
-  API.post("/api/analyze-jd", data);
+  API.post("/api/analyze-jd", data); // ✅ FIXED

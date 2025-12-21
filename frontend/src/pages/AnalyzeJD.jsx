@@ -1,34 +1,64 @@
-// src/pages/AnalyzeJD.jsx
-import { useState } from 'react';
+import { useState } from "react";
 import { analyzeJD } from "../services/api";
+import { transformAnalysisData } from "../utils/analyzeTransform";
+
+import JobRoleSummary from "../components/analyze/JobRoleSummary";
+import JobFitScore from "../components/analyze/JobFitScore";
+import SkillsBreakdown from "../components/analyze/SkillsBreakdown";
+import ProjectSuggestions from "../components/analyze/ProjectSuggestions";
+import ResumeBulletSuggestions from "../components/analyze/ResumeBulletSuggestions";
+import LoadingSkeleton from "../components/analyze/LoadingSkeleton";
+
 
 function AnalyzeJD() {
   const [jobDescription, setJobDescription] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [visibleSections, setVisibleSections] = useState([]);
 
+
+
+  const revealSections = () => {
+    const sections = ["summary", "fit", "skills", "projects", "resume"];
+    sections.forEach((section, i) => {
+      setTimeout(() => {
+        setVisibleSections(prev =>
+          prev.includes(section) ? prev : [...prev, section]
+        );
+      }, i * 250);
+    });
+  };
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
-        setError("Please paste a job description first.");
-        return;
+      setError("Please paste a job description first.");
+      return;
     }
 
     setAnalyzing(true);
     setError(null);
     setResult(null);
+    setVisibleSections([]);
 
     try {
-        const response = await analyzeJD({ jobDescription });
-        setResult(response.data);
+      const response = await analyzeJD({ jobDescription });
+      const transformed = transformAnalysisData(response.data);
+      setResult(transformed);
+      revealSections();
+    } 
+    catch (err) {
+      const message =
+        err.response?.data?.error ||
+        "Failed to analyze job description. Please try again.";
 
-    } catch (err) {
-        setError("Failed to analyze job description. Please try again.");
-    } finally {
-        setAnalyzing(false);
+      setError(message);
+    } 
+    finally {
+      setAnalyzing(false);
     }
   };
+
 
 
   return (
@@ -162,38 +192,57 @@ function AnalyzeJD() {
         </div>
 
         <div className="glass-heavy border border-white/5 rounded-3xl p-12">
-            {error && (
-                <p className="text-red-400 text-center font-semibold">{error}</p>
-            )}
+          {/* Error */}
+          {error && (
+            <p className="text-red-400 text-center font-semibold">
+              {error}
+            </p>
+          )}
 
-            {!result && !error && (
-                <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-3">
-                    Your Results Will Appear Here
-                </h3>
-                <p className="text-gray-400 max-w-md mx-auto">
-                    Upload your resume and job description to see your match score,
-                    skill gaps, and recommendations.
-                </p>
-                </div>
-            )}
+          {/* Empty State */}
+          {!result && !error && !analyzing && (
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-3">
+                Your Results Will Appear Here
+              </h3>
+              <p className="text-gray-400 max-w-md mx-auto">
+                Upload your resume and job description to see your match score,
+                skill gaps, and recommendations.
+              </p>
+            </div>
+          )}
 
-            {result && (
-                <div className="space-y-6">
-                <h3 className="text-3xl font-bold text-white">
-                    Analysis Output (Raw)
-                </h3>
+          {/* Loading */}
+          {analyzing && <LoadingSkeleton />}
 
-                <pre className="bg-slate-900/60 p-6 rounded-xl text-gray-300 overflow-auto">
-                    {JSON.stringify(result, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div> 
+          {/* Results */}
+          {result && (
+            <div className="space-y-8">
+              {visibleSections.includes("summary") && (
+                <JobRoleSummary role={result.role} />
+              )}
 
-        </div> 
-      </div> 
-    );
+              {visibleSections.includes("fit") && (
+                <JobFitScore score={result.fitScore} />
+              )}
+
+              {visibleSections.includes("skills") && (
+                <SkillsBreakdown skills={result.skills} />
+              )}
+
+              {visibleSections.includes("projects") && (
+                <ProjectSuggestions projects={result.projects} />
+              )}
+
+                {visibleSections.includes("resume") && (
+                <ResumeBulletSuggestions bullets={result.resumeBullets} />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default AnalyzeJD;
