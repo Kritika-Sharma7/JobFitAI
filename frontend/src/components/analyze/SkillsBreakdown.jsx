@@ -1,31 +1,33 @@
 function SkillsBreakdown({ skills }) {
-  if (!skills) return null;
+  if (!skills || !skills.length) return null;
 
-  const { required = [], goodToHave = [], missing = [] } = skills;
+  // Phase 3 rule: missing skills FIRST
+  const sortedSkills = [...skills].sort((a, b) =>
+    a.category.includes("missing") ? -1 : 1
+  );
 
-  const SkillGroup = ({ title, color, items }) => {
-    if (!items.length) return null;
+  const getStyles = (category) => {
+    if (category.includes("missing")) {
+      return {
+        dot: "bg-red-400",
+        chip: "bg-red-500/15 text-red-300 border-red-500/30",
+        label: "Missing / High Priority"
+      };
+    }
 
-    return (
-      <div>
-        <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${color}`} />
-          {title}
-          <span className="text-xs text-gray-500">({items.length})</span>
-        </h4>
+    if (category === "must_have") {
+      return {
+        dot: "bg-green-400",
+        chip: "bg-green-500/15 text-green-300 border-green-500/30",
+        label: "Must Have"
+      };
+    }
 
-        <div className="flex flex-wrap gap-2">
-          {items.map((skill, idx) => (
-            <span
-              key={idx}
-              className="px-3 py-1.5 rounded-xl text-sm font-medium bg-slate-800/60 text-white border border-white/10 hover:border-white/20 transition"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
+    return {
+      dot: "bg-violet-400",
+      chip: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+      label: "Good to Have"
+    };
   };
 
   return (
@@ -34,25 +36,37 @@ function SkillsBreakdown({ skills }) {
         Skills Breakdown
       </h3>
 
-      <div className="space-y-8">
-        <SkillGroup
-          title="Required Skills"
-          color="bg-green-400"
-          items={required}
-        />
+      <div className="flex flex-wrap gap-3">
+        {sortedSkills.map((skill, idx) => {
+          const styles = getStyles(skill.category);
 
-        <SkillGroup
-          title="Good to Have"
-          color="bg-violet-400"
-          items={goodToHave}
-        />
+          return (
+           <span
+              key={idx}
+              className={`px-4 py-2 rounded-xl text-sm font-medium border
+                          ${styles.chip} flex items-center gap-2`}
+            >
+              <span className={`w-2 h-2 rounded-full ${styles.dot}`} />
 
-        <SkillGroup
-          title="Skills to Develop"
-          color="bg-yellow-400"
-          items={missing}
-        />
+              <span>{skill.name}</span>
+
+              <span
+                className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold
+                          bg-black/20 border border-white/10 uppercase tracking-wide"
+              >
+                {styles.label}
+              </span>
+            </span>
+
+
+          );
+        })}
       </div>
+
+      {/* Phase 3 explainability hint */}
+      <p className="text-xs text-gray-400 mt-6">
+        Missing skills have the highest impact on your job fit score.
+      </p>
     </div>
   );
 }
