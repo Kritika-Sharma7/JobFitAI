@@ -47,6 +47,13 @@ function ProjectSuggestions({ projects }) {
                 </ul>
               </div>
             )}
+            
+            {/* Fallback if no JD mapping */}
+            {!project.jdMapping?.length && (
+              <p className="mt-4 text-sm text-gray-500">
+                This project aligns well with the job description.
+              </p>
+            )}
           </div>
         ))}
       </div>

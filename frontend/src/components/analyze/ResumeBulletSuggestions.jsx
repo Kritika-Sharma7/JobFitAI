@@ -43,7 +43,7 @@ function ResumeBulletSuggestions({ bullets }) {
                   Original
                 </p>
                 <p className="text-sm text-gray-400 leading-relaxed">
-                  {bullet.original}
+                  {bullet.original ?? "—"}
                 </p>
               </div>
 
