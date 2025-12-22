@@ -1,7 +1,18 @@
 function JobRoleSummary({ role }) {
   if (!role) return null;
 
-  const { title, level, techStack = [] } = role;
+
+  // Support both mock + future backend shapes
+  const {
+    title,
+    level,
+    experience,
+    techStack,
+    stack
+  } = role;
+
+  const displayLevel = level || experience;
+  const displayStack = techStack || stack || [];
 
   return (
     <div className="glass-heavy border border-white/10 rounded-3xl p-8">
@@ -13,32 +24,37 @@ function JobRoleSummary({ role }) {
         {/* Role Title */}
         <div>
           <p className="text-sm text-gray-400 mb-1">Detected Role</p>
-          <p className="text-2xl font-semibold text-white">
+          <p className="text-2xl font-semibold text-violet-300">
             {title}
           </p>
+
         </div>
 
         {/* Experience Level */}
-        <div>
-          <p className="text-sm text-gray-400 mb-2">Experience Level</p>
-          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold
-            bg-violet-500/10 text-violet-300 border border-violet-500/30">
-            {level}
-          </span>
-        </div>
+        {displayLevel && (
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Experience Level</p>
+            <span
+              className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold
+                         bg-violet-500/10 text-violet-300 border border-violet-500/30"
+            >
+              {displayLevel}
+            </span>
+          </div>
+        )}
 
         {/* Tech Stack */}
         <div>
           <p className="text-sm text-gray-400 mb-3">Primary Tech Stack</p>
 
           <div className="flex flex-wrap gap-2">
-            {techStack.length > 0 ? (
-              techStack.map((tech, index) => (
+            {displayStack.length > 0 ? (
+              displayStack.map((tech, index) => (
                 <span
                   key={index}
                   className="px-3 py-1.5 rounded-xl text-sm font-medium
-                    bg-slate-900/70 text-gray-200 border border-white/10
-                    hover:border-violet-400/40 transition"
+                             bg-slate-900/70 text-gray-200 border border-white/10
+                             hover:border-violet-400/40 transition"
                 >
                   {tech}
                 </span>
