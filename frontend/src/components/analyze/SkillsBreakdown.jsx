@@ -2,12 +2,19 @@ function SkillsBreakdown({ skills }) {
   if (!skills || !skills.length) return null;
 
   // Phase 3 rule: missing skills FIRST
-  const sortedSkills = [...skills].sort((a, b) =>
-    a.category.includes("missing") ? -1 : 1
+  const priority = {
+    missing: 0,
+    must_have: 1,
+    good_to_have: 2,
+  };
+
+  const sortedSkills = [...skills].sort(
+    (a, b) => priority[a.category] - priority[b.category]
   );
 
+
   const getStyles = (category) => {
-    if (category.includes("missing")) {
+    if (category=="missing") {
       return {
         dot: "bg-red-400",
         chip: "bg-red-500/15 text-red-300 border-red-500/30",

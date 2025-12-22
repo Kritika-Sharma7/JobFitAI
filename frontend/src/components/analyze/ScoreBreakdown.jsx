@@ -16,6 +16,11 @@ function ScoreBreakdown({ breakdown }) {
       key: "keywords",
       label: "ATS Keywords",
       description: "Presence of important job-specific keywords"
+    },
+    {
+      key: "bonus",
+      label: "Bonus Signals",
+      description: "Extra alignment factors like strong phrasing or relevance"
     }
   ];
 
@@ -45,7 +50,7 @@ function ScoreBreakdown({ breakdown }) {
             </div>
 
             <div className="text-lg font-bold text-violet-400">
-              {breakdown[key]} pts
+              {breakdown[key] ?? 0} pts
             </div>
           </div>
         ))}
