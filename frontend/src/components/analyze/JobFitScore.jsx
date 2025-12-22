@@ -37,6 +37,12 @@ function JobFitScore({ score }) {
         </div>
       </div>
 
+      <p className="text-sm text-gray-400 text-center">
+        Overall match between your profile and this job description.
+      </p>
+
+
+
       {/* Progress Bar */}
       <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden mb-4">
         <div

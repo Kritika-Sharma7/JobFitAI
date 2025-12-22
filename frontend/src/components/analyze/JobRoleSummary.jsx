@@ -1,5 +1,4 @@
 function JobRoleSummary({ role }) {
-  console.log("JobRoleSummary role prop:", role);
   if (!role) return null;
 
 
