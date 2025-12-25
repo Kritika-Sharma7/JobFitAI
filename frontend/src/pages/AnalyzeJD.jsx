@@ -1,53 +1,197 @@
 import { useState } from "react";
 import { analyzeJD } from "../services/api";
 import { transformAnalysisData } from "../utils/analyzeTransform";
-
+import ATSScore from "../components/ats/ATSScore";
+import KeywordSuggestions from "../components/ats/KeywordSuggestions";
+import ResumeBulletRewrite from "../components/ats/ResumeBulletRewrite";
 import ResumeUpload from "../components/resume/ResumeUpload";
 import ProfileSetup from "../components/resume/ProfileSetup";
 import ResumePreview from "../components/resume/ResumePreview";
-
+import MatchScore from "../components/match/MatchScore";
 import JobFitScore from "../components/analyze/JobFitScore";
 import SkillsBreakdown from "../components/analyze/SkillsBreakdown";
 import ProjectSuggestions from "../components/analyze/ProjectSuggestions";
 import ResumeBulletSuggestions from "../components/analyze/ResumeBulletSuggestions";
 import LoadingSkeleton from "../components/analyze/LoadingSkeleton";
+import SkillGapView from "../components/match/SkillGapView";
+import JDComparison from "../components/match/JDComparison.jsx";
+import RoadmapTimeline from "../components/roadmap/RoadmapTimeline";
 
 function AnalyzeJD() {
   /* -------------------- STATE -------------------- */
   const [jobDescription, setJobDescription] = useState("");
-  const [resume, setResume] = useState(null); // file or text
+  const [resume, setResume] = useState({
+    file: null,
+    text: ""
+  });
+
+  const [profile, setProfile] = useState({
+    experience: "",
+    role: "",
+    techStack: ""
+  });
+  const USE_MOCK_DATA = true; // change to false when backend is ready
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [matchData, setMatchData] = useState(null);
+  const [atsData, setATSData] = useState(null);
+  const [improveData, setImproveData] = useState(null);
+  const [roadmapData, setRoadmapData] = useState(null);
+
+  // 🔹 TEMPORARY: Mock data for UI testing (remove later)
+  const mockMatchData = {
+    matchScore: 72,
+    skillComparison: {
+      matched: ["React", "JavaScript", "HTML", "CSS"],
+      partial: ["Redux", "TypeScript"],
+      missing: ["Next.js", "Jest", "GraphQL"]
+    }
+  };
+  const mockATS = {
+    atsScore: 81,
+    breakdown: {
+      keywords: 30,
+      actionVerbs: 20,
+      structure: 15,
+      experience: 10
+    },
+    bulletAnalysis: [
+      {
+        text: "Built React components for scalable UI",
+        grade: "strong",
+        reason: "Uses action verb and JD keyword"
+      },
+      {
+        text: "Worked on frontend features",
+        grade: "weak",
+        reason: "No strong action verb or JD skill"
+      }
+    ]
+  };
+
+  const mockImprove = {
+    original: "Worked on frontend features",
+    optimized:
+      "Built scalable frontend features using React with performance optimizations and clean architecture"
+  };
+  const mockRoadmap = {
+    jdId: "frontend_jd_1",
+    targetRole: "Frontend Developer",
+    totalMissingSkills: 2,
+    roadmap: [
+      {
+        skill: "Docker",
+        priority: "good_to_have",
+        difficulty: "Intermediate",
+        learningPlan: [
+          "Understand Docker fundamentals",
+          "Practice containerizing frontend apps",
+          "Use Docker in a real project"
+        ],
+        project: {
+          title: "Dockerized Frontend App",
+          description: "Containerize a React application using Docker",
+          outcome: "Demonstrates real-world Docker usage"
+        }
+      },
+      {
+        skill: "AWS",
+        priority: "good_to_have",
+        difficulty: "Intermediate",
+        learningPlan: [
+          "Learn AWS basics (EC2, S3)",
+          "Deploy a frontend app on AWS",
+          "Understand basic cloud architecture"
+        ],
+        project: {
+          title: "AWS Deployed Frontend",
+          description: "Deploy a frontend application using AWS services",
+          outcome: "Demonstrates cloud deployment skills"
+        }
+      }
+    ]
+  };
+
 
   /* -------------------- LOGIC -------------------- */
+  const isResumeProvided =
+    resume.file || resume.text.trim().length > 50;
+
   const canAnalyze =
     jobDescription.trim().length > 50 &&
-    (typeof resume === "string"
-      ? resume.trim().length > 50
-      : !!resume);
+    isResumeProvided &&
+    !analyzing;
+
 
 
   const handleAnalyze = async () => {
+    if (!jobDescription.trim()) {
+      setError("Please paste a job description first.");
+      return;
+    }
+
+    setAnalyzing(true);
+    setError(null);
+
+    // Clear old results
+    setResult(null);
+    setMatchData(null);
+    setATSData(null);
+    setImproveData(null);
+    setRoadmapData(null);
+
     try {
-      setAnalyzing(true);
-      setError(null);
-      setResult(null);
+      if (USE_MOCK_DATA) {
+        // UI MODE (NO BACKEND)
+        setMatchData(mockMatchData);
+        setATSData(mockATS);
+        setImproveData(mockImprove);
+        setRoadmapData(mockRoadmap);
 
-      const response = await analyzeJD({
-        jobDescription,
-        resume,
-      });
+        const transformed = transformAnalysisData({
+          resumeAnalyze: {
+            matchScore: mockMatchData.matchScore,
+            skillComparison: mockMatchData.skillComparison
+          }
+        });
+        setResult(transformed);
 
-      const transformed = transformAnalysisData(response);
-      setResult(transformed);
+      } else {
+        // BACKEND MODE
+        const response = await analyzeJD({
+          resume: {
+            text: resume.text || "",
+            fileUrl: resume.file ? "uploaded_pdf_url_placeholder" : ""
+          },
+          profile: {
+            experience: profile.experience,
+            targetRole: profile.role,
+            techStack: profile.techStack
+          },
+          jobDescription
+        });
+
+        const data = response.data;
+
+        setMatchData(data.resumeMatch);
+        setATSData(data.atsScore);
+        setImproveData(data.resumeImprove);
+        setRoadmapData(data.roadmap);
+
+        const transformed = transformAnalysisData(data.resumeAnalyze);
+        setResult(transformed);
+      }
+
     } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err.message);
     } finally {
       setAnalyzing(false);
     }
   };
+
+
+      
 
   /* -------------------- UI -------------------- */
   return (
@@ -66,15 +210,12 @@ function AnalyzeJD() {
             <div className="lg:col-span-2">
               <ResumeUpload
                 onResumeChange={(data) => {
-                  // data = { file, text }
-                  if (data.file) {
-                    setResume(data.file);
-                  } else if (data.text) {
-                    setResume(data.text);
-                  } else {
-                    setResume(null);
-                  }
+                  setResume({
+                    file: data.file || null,
+                    text: data.text || ""
+                  });
                 }}
+
               />
 
             </div>
@@ -116,7 +257,12 @@ function AnalyzeJD() {
           </summary>
 
           <div className="px-6 pb-6 pt-2">
-            <ProfileSetup />
+            <ProfileSetup
+              onProfileChange={(data) => {
+                setProfile(data);
+              }}
+            />
+
           </div>
         </details>
       </section>
@@ -160,7 +306,7 @@ function AnalyzeJD() {
 
       {result && (
         <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
-          <JobFitScore data={result.score} />
+          <JobFitScore score={result.fitScore} />
           <SkillsBreakdown data={result.skills} />
           <ProjectSuggestions data={result.projects} />
           <ResumeBulletSuggestions data={result.resumePoints} />
@@ -168,7 +314,35 @@ function AnalyzeJD() {
       )}
 
       {/* ---------- CONTEXTUAL PREVIEW (DESKTOP ONLY) ---------- */}
-     
+     {matchData && (
+        <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
+          <MatchScore score={matchData.matchScore} />
+          <SkillGapView
+            matched={matchData.skillComparison.matched}
+            partial={matchData.skillComparison.partial}
+            missing={matchData.skillComparison.missing}
+          />
+        </section>
+      )}
+
+      {atsData && (
+        <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
+          <ATSScore data={atsData} />
+          <KeywordSuggestions bullets={atsData.bulletAnalysis} />
+        </section>
+      )}
+
+      {improveData && (
+        <section className="max-w-7xl mx-auto mt-16 px-4">
+          <ResumeBulletRewrite data={improveData} />
+        </section>
+      )}
+
+      {roadmapData && (
+        <section className="max-w-7xl mx-auto mt-16 px-4">
+          <RoadmapTimeline data={roadmapData} />
+        </section>
+      )}
 
     </div>
   );
