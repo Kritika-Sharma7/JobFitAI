@@ -23,6 +23,8 @@ const analyzeJD = async (req, res) => {
     });
   }
 
+
+  //Never change this response format ever
   const result = await analyzeJDService(jobDescription, role, experience);
 
   console.log("📤 Final Analyze JD response", {
@@ -35,28 +37,8 @@ const analyzeJD = async (req, res) => {
   resumeBulletsCount: result.resumeBullets?.length
 });
 
-
-
   // console.log("🔥 FINAL BACKEND RESULT:", JSON.stringify(result, null, 2));
 
-  //DONT CHANGE THIS RESPONSE FORMAT EVER
-  // return res.json({
-  //   roleDetected: result.roleDetected || "",
-  //   experienceDetected: result.experienceDetected || "",
-  //   skills: {
-  //     must_have: result.skills?.must_have || [],
-  //     good_to_have: result.skills?.good_to_have || [],
-  //     missing: result.skills?.missing || []
-  //   },
-  //   projects: result.projects || [],
-  //   resumePoints: result.resumePoints || [],
-  //   fitScore: result.fitScore || 0,
-  //   scoreBreakdown: result.scoreBreakdown || {
-  //     skills: 0,
-  //     experience: 0,
-  //     keywords: 0
-  //   }
-  // });
   return res.json(result);
 
 
