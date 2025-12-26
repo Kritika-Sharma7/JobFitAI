@@ -1,10 +1,3 @@
-// src/utils/analyzeTransform.js
-
-/**
- * Phase 4+
- * Backend already returns structured AI output.
- * This function only normalizes + protects against missing fields.
- */
 export const transformAnalysisData = (raw) => {
   if (!raw || typeof raw !== "object") {
     return getDefaultStructure();
@@ -16,11 +9,9 @@ export const transformAnalysisData = (raw) => {
     scoreBreakdown: raw.scoreBreakdown ?? getDefaultStructure().scoreBreakdown,
     skills: raw.skills ?? [],
     projects: raw.projects ?? [],
-    resumeBullets: raw.resumeBullets ?? [],
+    resumePoints: raw.resumeBullets ?? [], // 🔥 FIX
   };
 };
-
-/* -------------------- fallback -------------------- */
 
 const getDefaultStructure = () => ({
   role: {
@@ -37,5 +28,5 @@ const getDefaultStructure = () => ({
   },
   skills: [],
   projects: [],
-  resumeBullets: [],
+  resumePoints: [],
 });

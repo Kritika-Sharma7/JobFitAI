@@ -30,7 +30,7 @@ function AnalyzeJD() {
     role: "",
     techStack: ""
   });
-  const USE_MOCK_DATA = true; // change to false when backend is ready
+  const USE_MOCK_DATA = false; // change to false when backend is ready
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -150,16 +150,18 @@ function AnalyzeJD() {
         setRoadmapData(mockRoadmap);
 
         const transformed = transformAnalysisData({
-          resumeAnalyze: {
-            matchScore: mockMatchData.matchScore,
-            skillComparison: mockMatchData.skillComparison
-          }
+          fitScore: mockMatchData.matchScore,
+          skills: mockMatchData.skillComparison,
+          projects: [],
+          resumeBullets: []
         });
+
         setResult(transformed);
 
       } else {
         // BACKEND MODE
-        const response = await analyzeJD({
+      
+        const data = await analyzeJD({
           resume: {
             text: resume.text || "",
             fileUrl: resume.file ? "uploaded_pdf_url_placeholder" : ""
@@ -172,14 +174,14 @@ function AnalyzeJD() {
           jobDescription
         });
 
-        const data = response.data;
 
         setMatchData(data.resumeMatch);
         setATSData(data.atsScore);
         setImproveData(data.resumeImprove);
         setRoadmapData(data.roadmap);
 
-        const transformed = transformAnalysisData(data.resumeAnalyze);
+        const transformed = transformAnalysisData(data);
+
         setResult(transformed);
       }
 
@@ -307,9 +309,10 @@ function AnalyzeJD() {
       {result && (
         <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
           <JobFitScore score={result.fitScore} />
-          <SkillsBreakdown data={result.skills} />
-          <ProjectSuggestions data={result.projects} />
-          <ResumeBulletSuggestions data={result.resumePoints} />
+          <SkillsBreakdown skills={result.skills} />
+          <ProjectSuggestions projects={result.projects} />
+          <ResumeBulletSuggestions bullets={result.resumePoints} />
+
         </section>
       )}
 

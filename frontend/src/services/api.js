@@ -28,8 +28,11 @@ api.interceptors.response.use(
 /* -------------------- API FUNCTIONS -------------------- */
 
 // Phase 3 / 4
-export const analyzeJD = (payload) =>
-  api.post("/analyze-jd", payload);
+export const analyzeJD = async (payload) => {
+  const res = await api.post("/analyze-jd", payload);
+  return res.data;
+};
+
 
 // Later additions (already planned)
 export const getResumeMatch = (jdId) =>
