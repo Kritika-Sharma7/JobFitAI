@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { analyzeJD } from "../services/api";
+import {
+  analyzeJD,
+  getATSScore,
+  analyzeResume,
+  saveJD
+} from "../services/api";
+
 import { transformAnalysisData } from "../utils/analyzeTransform";
 import ATSScore from "../components/ats/ATSScore";
 import KeywordSuggestions from "../components/ats/KeywordSuggestions";
@@ -38,6 +44,7 @@ function AnalyzeJD() {
   const [atsData, setATSData] = useState(null);
   const [improveData, setImproveData] = useState(null);
   const [roadmapData, setRoadmapData] = useState(null);
+  const [jdId, setJdId] = useState(null);
 
   // 🔹 TEMPORARY: Mock data for UI testing (remove later)
   const mockMatchData = {
@@ -116,12 +123,16 @@ function AnalyzeJD() {
 
   /* -------------------- LOGIC -------------------- */
   const isResumeProvided =
-    resume.file || resume.text.trim().length > 50;
+  resume.text && resume.text.trim().length > 50;
+
 
   const canAnalyze =
-    jobDescription.trim().length > 50 &&
-    isResumeProvided &&
-    !analyzing;
+  jobDescription.trim().length > 50 &&
+  isResumeProvided &&
+  profile.experience &&
+  profile.role &&
+  !analyzing;
+
 
 
 
@@ -133,7 +144,7 @@ function AnalyzeJD() {
 
     setAnalyzing(true);
     setError(null);
-
+    setJdId(null);
     // Clear old results
     setResult(null);
     setMatchData(null);
@@ -161,7 +172,21 @@ function AnalyzeJD() {
       } else {
         // BACKEND MODE
       
-        const data = await analyzeJD({
+        // 🔹 MULTI-API BACKEND MODE (NO BACKEND CHANGE)
+
+      const jdPayload = {
+          jobDescription,
+          role: profile.role,
+          experience: profile.experience
+        };
+
+        const atsPayload = {
+          resumeText: resume.text,
+          jobDescription,
+          experience: profile.experience
+        };
+
+        const resumePayload = {
           resume: {
             text: resume.text || "",
             fileUrl: resume.file ? "uploaded_pdf_url_placeholder" : ""
@@ -172,22 +197,31 @@ function AnalyzeJD() {
             techStack: profile.techStack
           },
           jobDescription
-        });
+        };
 
+        const [jdRes, atsRes, resumeRes] = await Promise.allSettled([
+          analyzeJD(jdPayload),
+          getATSScore(atsPayload),
+          analyzeResume(resumePayload)
+        ]);
 
-        setMatchData(data.resumeMatch);
-        setATSData(data.atsScore);
-        setImproveData(data.resumeImprove);
-        setRoadmapData(data.roadmap);
+        if (jdRes.status === "fulfilled") {
+          const transformed = transformAnalysisData(jdRes.value);
+          setResult(transformed);
+        }
 
-        const transformed = transformAnalysisData(data);
+        if (atsRes.status === "fulfilled") {
+          setATSData(atsRes.value);
+        }
 
-        setResult(transformed);
+        if (resumeRes.status === "fulfilled") {
+          setMatchData(resumeRes.value);
+        }
+
       }
-
     } catch (err) {
-      setError(err.message);
-    } finally {
+      setError(err?.message || "Something went wrong");
+    }finally {
       setAnalyzing(false);
     }
   };
@@ -313,20 +347,49 @@ function AnalyzeJD() {
           <ProjectSuggestions projects={result.projects} />
           <ResumeBulletSuggestions bullets={result.resumePoints} />
 
+          {/* 🔹 SAVE JD CTA */}
+          {!jdId && (
+            <div className="pt-6 text-center">
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await saveJD({
+                      jobDescription,
+                      role: profile.role,
+                      experience: profile.experience
+                    });
+                    setJdId(res.jdId);
+
+                    // 🔥 FETCH STORED MATCH
+                   
+                  } catch (e) {
+                    setError(e?.message || "Failed to save JD");
+                  }
+                }}
+                className="px-6 py-3 rounded-xl font-semibold
+                          bg-gradient-to-r from-indigo-600 to-violet-600
+                          text-white shadow-lg hover:scale-[1.02]"
+              >
+                Save JD & Generate Roadmap
+              </button>
+            </div>
+          )}
         </section>
       )}
 
+
       {/* ---------- CONTEXTUAL PREVIEW (DESKTOP ONLY) ---------- */}
-     {matchData && (
+     {matchData && matchData.skillComparison && (
         <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
           <MatchScore score={matchData.matchScore} />
           <SkillGapView
-            matched={matchData.skillComparison.matched}
-            partial={matchData.skillComparison.partial}
-            missing={matchData.skillComparison.missing}
+            matched={matchData.skillComparison.matched || []}
+            partial={matchData.skillComparison.partial || []}
+            missing={matchData.skillComparison.missing || []}
           />
         </section>
       )}
+
 
       {atsData && (
         <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
@@ -341,11 +404,19 @@ function AnalyzeJD() {
         </section>
       )}
 
-      {roadmapData && (
-        <section className="max-w-7xl mx-auto mt-16 px-4">
-          <RoadmapTimeline data={roadmapData} />
+      {/* ---------- JD-BASED FEATURES ---------- */}
+      {jdId && (
+        <section className="max-w-7xl mx-auto mt-20 px-4 space-y-12">
+          
+          {/* Resume vs JD (stored) */}
+          <JDComparison jdId={jdId} />
+
+          {/* Learning Roadmap */}
+          <RoadmapTimeline jdId={jdId} />
+
         </section>
       )}
+
 
     </div>
   );
