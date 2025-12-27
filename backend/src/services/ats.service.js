@@ -1,6 +1,17 @@
 const { extractJDSkills } = require("../utils/ats.util");
 const { detectActionVerbs, gradeBullet } = require("../utils/ats.analysis.util");
 
+/* ---------- EXPERIENCE NORMALIZER ---------- */
+function normalizeExperience(exp) {
+  if (!exp) return "";
+
+  return exp
+    .toLowerCase()
+    .replace(/–/g, "-") 
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function calculateATSScore({ resumeText, jobDescription, experience }) {
   const jdSkills = extractJDSkills(jobDescription);
 
@@ -10,22 +21,52 @@ function calculateATSScore({ resumeText, jobDescription, experience }) {
   );
   const keywordScore = Math.min(keywordHits.length * 7, 35);
 
-  /* ---------- ACTION VERB SCORE ---------- */
-  const verbs = detectActionVerbs(resumeText);
-  const actionVerbScore = Math.min(verbs.length * 5, 25);
+  /* ---------- ACTION VERB SCORE (PER BULLET) ---------- */
+  const bullets = resumeText
+    .split("\n")
+    .map(b => b.trim())
+    .filter(Boolean);
+
+  const bulletsWithActionVerb = bullets.filter(
+    bullet => detectActionVerbs(bullet).length > 0
+  ).length;
+
+  const actionVerbScore = Math.min(bulletsWithActionVerb * 4, 25);
 
   /* ---------- STRUCTURE SCORE ---------- */
-  const bulletCount = resumeText.split("\n").length;
-  const structureScore = bulletCount >= 5 ? 15 : 8;
+  const structureScore = bullets.length >= 5 ? 15 : 8;
 
   /* ---------- EXPERIENCE SCORE ---------- */
+  const normalizedExp = normalizeExperience(experience);
   let experienceScore = 0;
-  if (experience === "1-3") experienceScore = 10;
-  if (experience === "3+") experienceScore = 15;
 
-  /* ---------- FINAL SCORE (CAP 92) ---------- */
+  switch (normalizedExp) {
+    case "fresher":
+      experienceScore = 6;
+      break;
+
+    case "0-2 years":
+      experienceScore = 8;
+      break;
+
+    case "2-5 years":
+      experienceScore = 12;
+      break;
+
+    case "5+ years":
+      experienceScore = 15;
+      break;
+
+    default:
+      experienceScore = 0;
+  }
+
+  /* ---------- FINAL SCORE (CAP @ 92) ---------- */
   const total = Math.min(
-    keywordScore + actionVerbScore + structureScore + experienceScore,
+    keywordScore +
+      actionVerbScore +
+      structureScore +
+      experienceScore,
     92
   );
 
@@ -53,13 +94,13 @@ function analyzeBullets(bullets, jobDescription) {
   });
 }
 
-/**
- * Resume bullet improvement (stub for OpenAI later)
- */
+/* ---------- BULLET IMPROVEMENT (STUB) ---------- */
 function improveResumeBullet(bullet, role) {
   return {
     original: bullet,
-    optimized: `Built production-grade ${role || "frontend"} features using scalable architecture, clean code practices, and performance optimizations`
+    optimized: `Built production-grade ${
+      role || "frontend"
+    } features using scalable architecture, clean code practices, and performance optimizations`
   };
 }
 
@@ -69,4 +110,3 @@ module.exports = {
   analyzeBullets,
   improveResumeBullet
 };
-

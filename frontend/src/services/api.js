@@ -51,7 +51,7 @@ export const saveJD = (payload) =>
   api.post("/save-jd", payload).then(res => res.data);
 
 // Resume ↔ JD match (stored JD)
-export const getResumeMatch = (jdId) => {
+export const getResumeJDMatch = (jdId) => {
   const ROOT = API_BASE.replace("/api", "");
   return axios.get(`${ROOT}/resume/match/${jdId}`).then((res) => res.data);
 };

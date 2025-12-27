@@ -7,8 +7,11 @@ const JD_SKILLS = [
   "CSS",
   "Redux",
   "Docker",
-  "AWS"
+  "AWS",
+  "REST APIs",
+  "API"
 ];
+
 
 function extractJDSkills(jd) {
   return JD_SKILLS.filter(skill =>

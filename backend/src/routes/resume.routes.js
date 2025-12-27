@@ -8,7 +8,6 @@ const {
   improveResume
 } = require("../controllers/resume.controller");
 
-router.post("/analyze", analyzeResume);
 router.post("/improve", improveResume);
 router.post(
   "/analyze",
