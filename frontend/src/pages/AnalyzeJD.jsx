@@ -454,6 +454,7 @@ import LoadingSkeleton from "../components/analyze/LoadingSkeleton";
 import SkillGapView from "../components/match/SkillGapView";
 import JDComparison from "../components/match/JDComparison.jsx";
 import RoadmapTimeline from "../components/roadmap/RoadmapTimeline";
+import { getResumeJDMatch } from "../services/api";
 
 function AnalyzeJD() {
   /* -------------------- STATE -------------------- */
@@ -631,30 +632,32 @@ function AnalyzeJD() {
           jobDescription
         };
 
-        const [jdRes, atsRes, resumeRes] = await Promise.allSettled([
-          analyzeJD(jdPayload),
-          getATSScore(atsPayload),
-          analyzeResume(resumePayload)
-        ]);
+        //RS RS RS RS RS RS RS 
+        // 1️⃣ SAVE RESUME FIRST
+        await analyzeResume({
+          jobDescription,
+          profile: {
+            experience: profile.experience,
+            targetRole: profile.role
+          },
+          resumeText: resume.text
+        });
 
-        //This section is modified RS
-        if (jdRes.status === "fulfilled") {
-          const jdResponse = jdRes.value;
+        // 2️⃣ ANALYZE + SAVE JD
+        const jdResponse = await analyzeJD(jdPayload);
 
-          const transformed = transformAnalysisData(jdResponse);
-          setResult(transformed);
+        const transformed = transformAnalysisData(jdResponse);
+        setResult(transformed);
+        setJdId(jdResponse.jdId);
 
-          // ⭐⭐⭐ THIS IS THE KEY LINE ⭐⭐⭐
-          setJdId(jdResponse.jdId);
-        }
+        // 3️⃣ ATS SCORE (IN PARALLEL IS FINE)
+        const atsRes = await getATSScore(atsPayload);
+        setATSData(atsRes);
 
-        if (atsRes.status === "fulfilled") {
-          setATSData(atsRes.value);
-        }
+        // 4️⃣ 🔥 FETCH STORED RESUME ↔ JD MATCH (THIS WAS MISSING)
+        const matchRes = await getResumeJDMatch(jdResponse.jdId);
+        setMatchData(matchRes);
 
-        if (resumeRes.status === "fulfilled") {
-          setMatchData(resumeRes.value);
-        }
 
       }
     } catch (err) {
@@ -816,8 +819,8 @@ function AnalyzeJD() {
       )}
 
 
-      {/* ---------- CONTEXTUAL PREVIEW (DESKTOP ONLY) ---------- */}
-     {matchData && matchData.skillComparison && (
+      {/* ---------- CONTEXTUAL PREVIEW (DESKTOP ONLY) RS COMMENTED---------- */}
+     {/* {matchData && matchData.skillComparison && (
         <section className="max-w-7xl mx-auto mt-16 px-4 space-y-10">
           <MatchScore score={matchData.matchScore} />
           <SkillGapView
@@ -826,7 +829,7 @@ function AnalyzeJD() {
             missing={matchData.skillComparison.missing || []}
           />
         </section>
-      )}
+      )} */}
 
 
       {atsData && (
