@@ -77,6 +77,14 @@ export default function JDComparison({ jdId }) {
       </div>
     );
   }
+  // ---------- MATCH PERCENTAGE NORMALIZATION{RS ADDED} ----------
+  const rawPercentage = Math.round((data.matchScore / 92) * 100);
+
+  const finalPercentage =
+    data.skillComparison.missing.length > 0
+      ? Math.min(rawPercentage, 95)
+      : 100;
+
 
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-950 p-8 space-y-8">
@@ -91,7 +99,9 @@ export default function JDComparison({ jdId }) {
       </div>
 
       {/* Match Score */}
-      <MatchScore score={data.matchScore} />
+      {/* <MatchScore score={data.matchScore} />  RS COMMENTED THIS AND ADDED BELOW*/}
+      {/* <MatchScore score={Math.round((data.matchScore / 92) * 100)} /> */}
+      <MatchScore score={finalPercentage} />
 
       {/* Skill Gap */}
       <SkillGapView

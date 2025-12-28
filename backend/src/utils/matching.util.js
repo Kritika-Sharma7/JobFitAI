@@ -79,7 +79,9 @@ function calculateMatchScore({ matched, partial, missing }) {
   score += partial.length * 6;
 
   // Penalty for missing
-  score -= missing.length * 4;
+  //score -= missing.length * 4; COMMENTED FOR MATCH PERCENTAGE
+  score -= Math.min(missing.length * 2, 20);
+
 
   return clamp(score, 0, 92);
 }

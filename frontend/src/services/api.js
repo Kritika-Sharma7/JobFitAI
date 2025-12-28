@@ -41,8 +41,27 @@ export const getATSScore = (payload) =>
   api.post("/ats/score", payload).then((res) => res.data);
 
 // Resume analysis (resume vs JD)
-export const analyzeResume = (payload) =>
-  api.post("/resume/analyze", payload).then((res) => res.data);
+// export const analyzeResume = (payload) =>
+//   api.post("/resume/analyze", payload).then((res) => res.data);
+//the above commented is initial and below is modified
+export const analyzeResume = ({
+  jobDescription,
+  profile,
+  resumeText
+}) =>
+  api
+    .post("/resume/analyze", {
+      jobDescription,
+      profile: {
+        experience: profile.experience,
+        targetRole: profile.targetRole
+      },
+      resume: {
+        text: resumeText
+      }
+    })
+    .then((res) => res.data);
+
 
 // Resume bullet improvement
 export const improveResume = (payload) =>

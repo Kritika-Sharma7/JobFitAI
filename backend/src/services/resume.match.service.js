@@ -46,7 +46,6 @@
 
 const Resume = require("../models/Resume.model");
 const JobDescription = require("../models/JobDescription");
-
 const {
   compareSkills,
   calculateMatchScore,
@@ -54,38 +53,20 @@ const {
 } = require("../utils/matching.util");
 
 async function matchResumeWithJDService({ jdId, userId }) {
-  /* ---------- FETCH RESUME ---------- */
   const resume = await Resume.findOne({ userId }).sort({ version: -1 });
+  if (!resume) throw new Error("Resume not found");
 
-  if (!resume) {
-    throw new Error("Resume not found");
-  }
-
-  if (!resume.parsedData || !resume.parsedData.skills) {
-    throw new Error("Resume skills not parsed");
-  }
-
-  /* ---------- FETCH JD ---------- */
   const jd = await JobDescription.findById(jdId);
+  if (!jd) throw new Error("JD not found");
 
-  if (!jd) {
-    throw new Error("Job Description not found");
-  }
-
-  if (!jd.skills || jd.skills.length === 0) {
-    throw new Error("JD skills not extracted");
-  }
-
-  /* ---------- MATCHING ---------- */
   const comparison = compareSkills(
-    resume.parsedData.skills, // [{ name, confidence }]
-    jd.skills                 // ["React", "JavaScript", ...]
+    resume.parsedData.skills,
+    jd.skills
   );
 
   const matchScore = calculateMatchScore(comparison);
   const recommendations = generateRecommendations(comparison.missing);
 
-  /* ---------- FINAL RESPONSE ---------- */
   return {
     matchScore,
     skillComparison: comparison,
@@ -94,6 +75,7 @@ async function matchResumeWithJDService({ jdId, userId }) {
 }
 
 module.exports = matchResumeWithJDService;
+
 
 
 
