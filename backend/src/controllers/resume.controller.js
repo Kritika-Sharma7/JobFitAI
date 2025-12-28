@@ -80,14 +80,22 @@ const { improveResumeBullet } = require("../services/ats.service");
 function normalizeExperienceLevel(exp) {
   if (!exp) return exp;
 
+  const normalized = exp.toLowerCase().replace(/\s+/g, "").replace("–", "-");
+
   const map = {
-    intern: "Intern",
-    fresher: "Fresher",
+    "fresher": "Fresher",
+
+    "0-2years": "1-3",
+    "2-5years": "3+",
+    "5+years": "3+",
+
+    // safety / fallback
+    "intern": "Intern",
     "1-3": "1-3",
     "3+": "3+"
   };
 
-  return map[exp.toLowerCase()] || exp;
+  return map[normalized] || "Fresher";
 }
 
 
