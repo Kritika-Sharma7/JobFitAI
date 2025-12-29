@@ -58,6 +58,9 @@ app.use(cors());
 app.use(express.json());
 
 const apiLimiter = require("./middlewares/rateLimiter");
+const analysisRoutes = require("./routes/analysis.routes");
+const authRoutes = require("./routes/auth.routes");
+
 
 app.use("/api", apiLimiter);
 
@@ -68,6 +71,9 @@ app.use("/resume", require("./routes/resume.match.routes"));
 app.use("/api/ats", require("./routes/ats.routes"));
 app.use("/api", require("./routes/roadmap.routes"));
 app.use("/api", require("./routes/dashboard.routes"));
+app.use("/api", analysisRoutes);
+app.use("/api", authRoutes);
+
 
 const errorHandler = require("./middlewares/error.middleware");
 app.use(errorHandler);
