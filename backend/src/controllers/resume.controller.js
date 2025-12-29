@@ -119,42 +119,90 @@ function normalizeExperienceLevel(exp) {
    RESUME ANALYZE
    ===================================================== */
 
+// const analyzeResume = async (req, res) => {
+//   try {
+//     console.log("🔥 RESUME ANALYZE CONTROLLER HIT 🔥");
+
+
+//     const { resume, profile, jobDescription } = req.body;
+
+//     const userId = req.userId;
+
+//     if (!resume?.text || !jobDescription || !profile?.experience || !profile?.targetRole) {
+//       return res.status(400).json({ error: "Invalid payload" });
+//     }
+
+//     const analysis = await analyzeResumeService({
+//       resume,
+//       profile,
+//       jobDescription,
+//       userId 
+//     });
+
+//     const lastResume = await Resume.findOne({ userId }).sort({ version: -1 });
+//     const nextVersion = lastResume ? lastResume.version + 1 : 1;
+
+//     const savedResume = await Resume.create({
+//       userId,
+//       version: nextVersion,
+//       text: resume.text,
+//       parsedData: {
+//         skills: analysis.parsedData.skills
+//       },
+//       experienceLevel: normalizeExperienceLevel(profile.experience),
+//       roles: [profile.targetRole]
+//     });
+
+//     return res.json({
+//       resumeId: savedResume._id,
+//       matchScore: analysis.matchScore,
+//       skillComparison: analysis.skillComparison
+//     });
+
+//   } catch (err) {
+//     console.error("❌ Resume analyze error:", err);
+//     return res.status(500).json({ error: "Resume analysis failed" });
+//   }
+// };
+
+//PHASE5 , delete if below works fine
 const analyzeResume = async (req, res) => {
   try {
     console.log("🔥 RESUME ANALYZE CONTROLLER HIT 🔥");
 
-    const { resume, profile, jobDescription } = req.body;
-    const userId = "demo-user";
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
-    if (!resume?.text || !jobDescription || !profile?.experience || !profile?.targetRole) {
+    const { resume, profile, jobDescription } = req.body;
+
+    if (
+      !resume?.text ||
+      !jobDescription ||
+      !profile?.experience ||
+      !profile?.targetRole
+    ) {
       return res.status(400).json({ error: "Invalid payload" });
     }
 
-    const analysis = await analyzeResumeService({
+    // ✅ SINGLE SOURCE OF TRUTH
+    const result = await analyzeResumeService({
       resume,
       profile,
-      jobDescription
+      jobDescription,
+      userId
     });
 
-    const lastResume = await Resume.findOne({ userId }).sort({ version: -1 });
-    const nextVersion = lastResume ? lastResume.version + 1 : 1;
+    /*
+      ✅ DO NOT:
+      - Save Resume here
+      - Modify response
+      - Pick fields
+      - Rename keys
+    */
 
-    const savedResume = await Resume.create({
-      userId,
-      version: nextVersion,
-      text: resume.text,
-      parsedData: {
-        skills: analysis.parsedData.skills
-      },
-      experienceLevel: normalizeExperienceLevel(profile.experience),
-      roles: [profile.targetRole]
-    });
-
-    return res.json({
-      resumeId: savedResume._id,
-      matchScore: analysis.matchScore,
-      skillComparison: analysis.skillComparison
-    });
+    return res.json(result);
 
   } catch (err) {
     console.error("❌ Resume analyze error:", err);
