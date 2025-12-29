@@ -1,12 +1,10 @@
-// const Resume = require("../models/Resume.model");
-// const JDMatch = require("../models/JDMatch.model");
 // const { extractSkillsFromText } = require("../utils/resume.util");
 // const { extractJDSkills } = require("../utils/ats.util");
+// const { calculateMatchScore } = require("../utils/matching.util");
 
-// async function analyzeResumeService({ resume, profile, jobDescription, jdId = "latest_jd" }) {
+// async function analyzeResumeService({ resume, profile, jobDescription }) {
 //   const resumeText = resume.text || "";
 
-//   /* ---------- SKILL EXTRACTION ---------- */
 //   const resumeSkills = extractSkillsFromText(resumeText).map(skill => ({
 //     name: skill,
 //     confidence: 0.7
@@ -14,7 +12,6 @@
 
 //   const jdSkills = extractJDSkills(jobDescription);
 
-//   /* ---------- MATCHING ---------- */
 //   const matched = [];
 //   const partial = [];
 //   const missing = [];
@@ -24,99 +21,43 @@
 //       rs => rs.name.toLowerCase() === skill.toLowerCase()
 //     );
 
-//     if (found && found.confidence >= 0.6) {
-//       matched.push(skill);
-//     } else if (found) {
-//       partial.push(skill);
-//     } else {
-//       missing.push(skill);
-//     }
+//     if (found && found.confidence >= 0.6) matched.push(skill);
+//     else if (found) partial.push(skill);
+//     else missing.push(skill);
 //   });
 
 //   const matchScore = calculateMatchScore({
 //     matched,
 //     partial,
-//     experience: profile.experience
+//     missing
 //   });
 
-//   const summary = generateSummary(matchScore, missing);
-
-//   /* ---------- RESUME VERSIONING ---------- */
-//   const lastResume = await Resume.findOne({ userId: "demo-user" })
-//     .sort({ version: -1 });
-
-//   const nextVersion = lastResume ? lastResume.version + 1 : 1;
-
-//   await Resume.create({
-//     userId: "demo-user",
-//     version: nextVersion,
-//     text: resumeText,
+//   return {
 //     parsedData: {
-//       skills: resumeSkills,
-//       experienceLevel: profile.experience,
-//       roles: [profile.targetRole]
-//     }
-//   });
-
-//   /* ---------- JD MATCH HISTORY ---------- */
-//   await JDMatch.create({
-//     userId: "demo-user",
-//     jdId,
-//     matchScore,
-//     verdict: summary.verdict
-//   });
-
-//   /* ---------- RESPONSE (FRONTEND SAFE) ---------- */
-//   return {
-//     matchScore,
-//     skillComparison: {
-//       matched,
-//       partial,
-//       missing
+//       skills: resumeSkills
 //     },
-//     summary
-//   };
-// }
-
-// /* ---------- HELPERS ---------- */
-
-// function calculateMatchScore({ matched, partial, experience }) {
-//   let score = 0;
-
-//   score += matched.length * 12;
-//   score += partial.length * 6;
-
-//   if (experience === "1-3") score += 12;
-//   if (experience === "3+") score += 18;
-
-//   return Math.min(Math.max(score, 0), 92);
-// }
-
-// function generateSummary(score, missing) {
-//   let verdict = "Low Match";
-
-//   if (score >= 75) verdict = "Strong Match";
-//   else if (score >= 45) verdict = "Partial Match";
-
-//   return {
-//     verdict,
-//     shortInsight:
-//       missing.length > 0
-//         ? `Missing ${missing.slice(0, 2).join(", ")} skills.`
-//         : "Strong alignment with job requirements."
+//     matchScore,
+//     skillComparison: { matched, partial, missing }
 //   };
 // }
 
 // module.exports = analyzeResumeService;
 
 
+//=====================================================
+
 const { extractSkillsFromText } = require("../utils/resume.util");
 const { extractJDSkills } = require("../utils/ats.util");
 const { calculateMatchScore } = require("../utils/matching.util");
+const {
+  rewriteResumeBulletsWithOpenAI
+} = require("./openai.service");
 
+/* ================= RESUME ANALYSIS SERVICE ================= */
 async function analyzeResumeService({ resume, profile, jobDescription }) {
   const resumeText = resume.text || "";
 
+  /* ---------- SKILL EXTRACTION ---------- */
   const resumeSkills = extractSkillsFromText(resumeText).map(skill => ({
     name: skill,
     confidence: 0.7
@@ -124,6 +65,7 @@ async function analyzeResumeService({ resume, profile, jobDescription }) {
 
   const jdSkills = extractJDSkills(jobDescription);
 
+  /* ---------- SKILL MATCHING ---------- */
   const matched = [];
   const partial = [];
   const missing = [];
@@ -144,12 +86,44 @@ async function analyzeResumeService({ resume, profile, jobDescription }) {
     missing
   });
 
+  /* ---------- EXTRACT BULLETS FROM RESUME ---------- */
+  const extractedBullets = resumeText
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line =>
+      line.length > 6 &&
+      !line.toLowerCase().includes("education") &&
+      !line.toLowerCase().includes("skills")
+    )
+    .slice(0, 6); // safety cap
+
+  /* ---------- AI BULLET REWRITE (JD-OPTIMIZED) ---------- */
+  const rewrittenBullets =
+    extractedBullets.length > 0
+      ? await rewriteResumeBulletsWithOpenAI({
+          bullets: extractedBullets,
+          jobDescription,
+          role: profile.targetRole,
+          experience: profile.experience
+        })
+      : [];
+
+  /* ---------- RESPONSE (FRONTEND SAFE) ---------- */
   return {
     parsedData: {
       skills: resumeSkills
     },
+
     matchScore,
-    skillComparison: { matched, partial, missing }
+
+    skillComparison: {
+      matched,
+      partial,
+      missing
+    },
+
+    // 🔥 REAL AI OUTPUT
+    resumeBullets: rewrittenBullets
   };
 }
 

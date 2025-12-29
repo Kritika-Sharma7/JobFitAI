@@ -48,10 +48,16 @@ function ProjectSuggestions({ projects }) {
               </div>
             )}
             
+            
             {/* Fallback if no JD mapping */}
             {!project.jdMapping?.length && (
               <p className="mt-4 text-sm text-gray-500">
-                This project aligns well with the job description.
+                {/* This project aligns well with the job description. */}
+                {/* RS CHANGED THE BELOW SECTION , ABOVE WAS INITIAL CODE */}
+                <span className="font-semibold text-slate-300">
+                  Why recruiters care:
+                </span>{" "}
+                {project.whyItMatters}
               </p>
             )}
           </div>
