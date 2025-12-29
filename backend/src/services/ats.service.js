@@ -111,7 +111,6 @@
 //   improveResumeBullet
 // };
 
-
 const { extractJDSkills } = require("../utils/ats.util");
 const {
   detectActionVerbs,

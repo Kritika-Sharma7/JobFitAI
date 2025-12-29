@@ -672,7 +672,8 @@ function AnalyzeJD() {
 
   /* -------------------- UI -------------------- */
   return (
-    <div className="relative min-h-screen pb-24">
+    <div className="relative min-h-screen pb-24 pt-24">
+
 
       {/* ---------- PRIMARY ACTION ZONE ---------- */}
       <section className="max-w-7xl mx-auto mt-10 px-4">
@@ -722,26 +723,26 @@ function AnalyzeJD() {
 
       {/* ---------- OPTIONAL PROFILE DETAILS ---------- */}
       <section className="max-w-7xl mx-auto mt-8 px-4">
-        <details className="group rounded-xl border border-white/10 bg-slate-900/60">
-          <summary
-            className="cursor-pointer list-none px-6 py-4
-                       flex items-center justify-between"
-          >
-            <span className="text-white font-semibold">
-              Profile Details <span className="text-white/50">(Optional)</span>
-            </span>
-            <span className="transition group-open:rotate-180">⌄</span>
-          </summary>
+        <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6">
 
-          <div className="px-6 pb-6 pt-2">
-            <ProfileSetup
-              onProfileChange={(data) => {
-                setProfile(data);
-              }}
-            />
-
+          {/* Header */}
+          <div className="mb-6 border-l-4 border-violet-500 pl-4">
+            <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+              🎯 Profile Context
+            </h2>
+            <p className="text-sm text-white/60 mt-1">
+              We use this information to compare your resume against job requirements
+              at your experience level, generate realistic match scores, and build a
+              personalized learning roadmap.
+            </p>
           </div>
-        </details>
+
+          <ProfileSetup
+            onProfileChange={(data) => {
+              setProfile(data);
+            }}
+          />
+        </div>
       </section>
 
       {/* ---------- ANALYZE BUTTON ---------- */}
@@ -760,11 +761,19 @@ function AnalyzeJD() {
           {analyzing ? "Analyzing..." : "Analyze Match"}
         </button>
 
-        {!canAnalyze && (
-          <p className="text-center text-sm text-white/40 mt-2">
-            Upload a resume and paste a job description to continue
-          </p>
-        )}
+        <p className="text-center text-sm mt-2">
+          {analyzing ? (
+            <span className="text-white/70 animate-pulse">
+              Analyzing...
+            </span>
+          ) : !canAnalyze ? (
+            <span className="text-white/40">
+              Upload a resume and paste a job description to continue
+            </span>
+          ) : null}
+        </p>
+
+
       </section>
 
       {/* ---------- ERROR ---------- */}

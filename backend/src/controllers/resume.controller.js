@@ -90,7 +90,6 @@ const { chat } = require("../services/openai.service");
 /* =====================================================
    HELPERS
    ===================================================== */
-
 function normalizeExperienceLevel(exp) {
   if (!exp) return "Fresher";
 
@@ -100,17 +99,21 @@ function normalizeExperienceLevel(exp) {
     .replace("–", "-");
 
   const map = {
-    fresher: "Fresher",
+    // UI values
+    "fresher": "Fresher",
     "0-2years": "1-3",
     "2-5years": "3+",
     "5+years": "3+",
-    intern: "Intern",
+
+    // safety / backend values
+    "intern": "Intern",
     "1-3": "1-3",
     "3+": "3+"
   };
 
   return map[normalized] || "Fresher";
 }
+
 
 /* =====================================================
    RESUME ANALYZE

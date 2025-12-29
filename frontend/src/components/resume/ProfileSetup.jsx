@@ -16,23 +16,20 @@ export default function ProfileSetup({ onProfileChange }) {
     };
 
     setProfile(updatedProfile);
-
-    if (onProfileChange) {
-      onProfileChange(updatedProfile);
-    }
+    onProfileChange?.(updatedProfile);
   };
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-5">
-      <h2 className="text-lg font-semibold text-white">
-        Profile Details
-      </h2>
+    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 space-y-6">
 
       {/* Experience Level */}
       <div className="space-y-1">
-        <label className="text-sm text-slate-400">
+        <label className="text-sm font-medium text-slate-300">
           Experience Level
         </label>
+        <p className="text-xs text-slate-500">
+          Affects scoring thresholds, feedback depth, and role expectations
+        </p>
         <select
           name="experience"
           value={profile.experience}
@@ -51,9 +48,12 @@ export default function ProfileSetup({ onProfileChange }) {
 
       {/* Target Role */}
       <div className="space-y-1">
-        <label className="text-sm text-slate-400">
+        <label className="text-sm font-medium text-slate-300">
           Target Role
         </label>
+        <p className="text-xs text-slate-500">
+          Used to align required skills, responsibilities, and match accuracy
+        </p>
         <input
           type="text"
           name="role"
@@ -69,21 +69,25 @@ export default function ProfileSetup({ onProfileChange }) {
 
       {/* Tech Stack */}
       <div className="space-y-1">
-        <label className="text-sm text-slate-400">
+        <label className="text-sm font-medium text-slate-300">
           Preferred Tech Stack
         </label>
+        <p className="text-xs text-slate-500">
+          Helps prioritize missing skills and personalize your roadmap
+        </p>
         <input
           type="text"
           name="techStack"
           value={profile.techStack}
           onChange={handleChange}
-          placeholder="React, Node.js, MongoDB"
+          placeholder="React, JavaScript, Redux, HTML, CSS"
           className="w-full rounded-md bg-slate-950 border border-slate-800
                      px-3 py-2 text-sm text-slate-200
                      placeholder:text-slate-600
                      focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
+
     </div>
   );
 }
