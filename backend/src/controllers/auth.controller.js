@@ -7,28 +7,28 @@ exports.signup = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password required" });
-    }
+    // 1. Create user
+    const user = await User.create({ email, password });
 
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ error: "User already exists" });
-    }
+    // 2. Generate JWT (SAME as login)
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      email,
-      passwordHash
-    });
-
+    // 3. Return token + user
     return res.json({
       success: true,
-      userId: user._id
+      token,
+      user: {
+        id: user._id,
+        email: user.email
+      }
     });
+
   } catch (err) {
-    console.error("❌ Signup error:", err);
+    console.error("Signup error:", err);
     return res.status(500).json({ error: "Signup failed" });
   }
 };

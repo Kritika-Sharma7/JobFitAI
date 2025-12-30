@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ProfileSetup({ onProfileChange }) {
+export default function ProfileSetup({ value, onProfileChange }) {
   const [profile, setProfile] = useState({
     experience: "",
     role: "",
     techStack: ""
   });
 
+  /* 🔁 IMPORTANT: Sync Zustand → UI */
+  useEffect(() => {
+    if (value) {
+      setProfile(value);
+    }
+  }, [value]);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value: fieldValue } = e.target;
 
     const updatedProfile = {
       ...profile,
-      [name]: value
+      [name]: fieldValue
     };
 
     setProfile(updatedProfile);

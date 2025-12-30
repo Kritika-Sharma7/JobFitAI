@@ -429,55 +429,77 @@
 
 //  ================ Above is initial code ================
 // ================ Below is edited code{RS} ================
+// ❌ REMOVE useState (you are using Zustand now)
+// import { useState } from "react";
 
-import { useState } from "react";
 import {
   analyzeJD,
   getATSScore,
   analyzeResume,
-  saveJD
+  saveJD,
+  getResumeJDMatch
 } from "../services/api";
 
+import useAnalyzeStore from "../store/analyzeStore";
+
 import { transformAnalysisData } from "../utils/analyzeTransform";
+
+/* ---------- ATS & ANALYSIS ---------- */
 import ATSScore from "../components/ats/ATSScore";
 import KeywordSuggestions from "../components/ats/KeywordSuggestions";
 import ResumeBulletRewrite from "../components/ats/ResumeBulletRewrite";
+
+/* ---------- INPUT COMPONENTS ---------- */
 import ResumeUpload from "../components/resume/ResumeUpload";
 import ProfileSetup from "../components/resume/ProfileSetup";
-import ResumePreview from "../components/resume/ResumePreview";
-import MatchScore from "../components/match/MatchScore";
+// import ResumePreview from "../components/resume/ResumePreview"; // optional / commented earlier
+
+/* ---------- RESULTS ---------- */
 import JobFitScore from "../components/analyze/JobFitScore";
 import SkillsBreakdown from "../components/analyze/SkillsBreakdown";
 import ProjectSuggestions from "../components/analyze/ProjectSuggestions";
 import ResumeBulletSuggestions from "../components/analyze/ResumeBulletSuggestions";
 import LoadingSkeleton from "../components/analyze/LoadingSkeleton";
-import SkillGapView from "../components/match/SkillGapView";
-import JDComparison from "../components/match/JDComparison.jsx";
+
+/* ---------- MATCH & ROADMAP ---------- */
+import JDComparison from "../components/match/JDComparison";
 import RoadmapTimeline from "../components/roadmap/RoadmapTimeline";
-import { getResumeJDMatch } from "../services/api";
 
 function AnalyzeJD() {
-  /* -------------------- STATE -------------------- */
-  const [jobDescription, setJobDescription] = useState("");
-  const [resume, setResume] = useState({
-    file: null,
-    text: ""
-  });
+  const {
+  jobDescription,
+  resume,
+  profile,
 
-  const [profile, setProfile] = useState({
-    experience: "",
-    role: "",
-    techStack: ""
-  });
-  const USE_MOCK_DATA = false; // change to false when backend is ready
-  const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [matchData, setMatchData] = useState(null);
-  const [atsData, setATSData] = useState(null);
-  const [improveData, setImproveData] = useState(null);
-  const [roadmapData, setRoadmapData] = useState(null);
-  const [jdId, setJdId] = useState(null);
+  analyzing,
+  error,
+
+  result,
+  matchData,
+  atsData,
+  improveData,
+  roadmapData,
+  jdId,
+
+  setJobDescription,
+  setResume,
+  setProfile,
+
+  setAnalyzing,
+  setError,
+
+  setResult,
+  setMatchData,
+  setATSData,
+  setImproveData,
+  setRoadmapData,
+  setJdId,
+
+  resetJD,
+  resetResume,
+  resetFullAnalysis
+} = useAnalyzeStore();
+  const USE_MOCK_DATA = false;
 
   // 🔹 TEMPORARY: Mock data for UI testing (remove later)
   const mockMatchData = {
@@ -556,7 +578,7 @@ function AnalyzeJD() {
 
   /* -------------------- LOGIC -------------------- */
   const isResumeProvided =
-  resume.text && resume.text.trim().length > 50;
+    resume.text && resume.text.trim().length > 50;
 
 
   const canAnalyze =
@@ -619,18 +641,18 @@ function AnalyzeJD() {
           experience: profile.experience
         };
 
-        const resumePayload = {
-          resume: {
-            text: resume.text || "",
-            fileUrl: resume.file ? "uploaded_pdf_url_placeholder" : ""
-          },
-          profile: {
-            experience: profile.experience,
-            targetRole: profile.role,
-            techStack: profile.techStack
-          },
-          jobDescription
-        };
+        // const resumePayload = {
+        //   resume: {
+        //     text: resume.text || "",
+        //     fileUrl: resume.file ? "uploaded_pdf_url_placeholder" : ""
+        //   },
+        //   profile: {
+        //     experience: profile.experience,
+        //     targetRole: profile.role,
+        //     techStack: profile.techStack
+        //   },
+        //   jobDescription
+        // };
 
         //RS RS RS RS RS RS RS 
         // 1️⃣ SAVE RESUME FIRST
@@ -642,6 +664,7 @@ function AnalyzeJD() {
           },
           resumeText: resume.text
         });
+
 
         // 2️⃣ ANALYZE + SAVE JD
         const jdResponse = await analyzeJD(jdPayload);
@@ -687,6 +710,7 @@ function AnalyzeJD() {
             {/* Resume (smaller) */}
             <div className="lg:col-span-2">
               <ResumeUpload
+                value={resume} 
                 onResumeChange={(data) => {
                   setResume({
                     file: data.file || null,
@@ -738,6 +762,7 @@ function AnalyzeJD() {
           </div>
 
           <ProfileSetup
+            value={profile}
             onProfileChange={(data) => {
               setProfile(data);
             }}
@@ -764,7 +789,7 @@ function AnalyzeJD() {
         <p className="text-center text-sm mt-2">
           {analyzing ? (
             <span className="text-white/70 animate-pulse">
-              Analyzing...
+              Analyzing your resume against the job description...
             </span>
           ) : !canAnalyze ? (
             <span className="text-white/40">
@@ -775,6 +800,46 @@ function AnalyzeJD() {
 
 
       </section>
+      <div className="flex justify-end gap-4 mt-4">
+        <button
+          onClick={() => {
+            resetJD();
+            setResult(null);
+            setMatchData(null);
+            setATSData(null);
+            setImproveData(null);
+            setRoadmapData(null);
+            setJdId(null);
+          }}
+          className="text-sm text-slate-400 hover:text-white"
+        >
+          Reset JD
+        </button>
+
+        <button
+          onClick={() => {
+            resetResume();
+            setResult(null);
+            setMatchData(null);
+            setATSData(null);
+            setImproveData(null);
+            setRoadmapData(null);
+            setJdId(null);
+          }}
+          className="text-sm text-slate-400 hover:text-white"
+        >
+          Reset Resume
+        </button>
+
+        <button
+          onClick={resetFullAnalysis}
+          className="text-sm text-red-400 hover:text-red-300"
+        >
+          Reset All
+        </button>
+      </div>
+
+
 
       {/* ---------- ERROR ---------- */}
       {error && (

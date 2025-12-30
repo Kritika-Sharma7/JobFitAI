@@ -13,6 +13,22 @@ const api = axios.create({
   }
 });
 
+/* -------------------- REQUEST INTERCEPTOR (AUTH) -------------------- */
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    // 🔑 Attach Bearer token if present
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 /* -------------------- RESPONSE INTERCEPTOR -------------------- */
 
 api.interceptors.response.use(
@@ -23,6 +39,12 @@ api.interceptors.response.use(
       error.response?.data?.message ||
       error.message ||
       "Something went wrong";
+
+    // Optional: auto logout on 401 (later phase)
+    // if (error.response?.status === 401) {
+    //   localStorage.removeItem("token");
+    //   window.location.href = "/login";
+    // }
 
     return Promise.reject({ message });
   }
@@ -41,9 +63,6 @@ export const getATSScore = (payload) =>
   api.post("/ats/score", payload).then((res) => res.data);
 
 // Resume analysis (resume vs JD)
-// export const analyzeResume = (payload) =>
-//   api.post("/resume/analyze", payload).then((res) => res.data);
-//the above commented is initial and below is modified
 export const analyzeResume = ({
   jobDescription,
   profile,
@@ -62,14 +81,15 @@ export const analyzeResume = ({
     })
     .then((res) => res.data);
 
-
 // Resume bullet improvement
 export const improveResume = (payload) =>
   api.post("/resume/improve", payload).then((res) => res.data);
-export const saveJD = (payload) =>
-  api.post("/save-jd", payload).then(res => res.data);
 
-// Resume ↔ JD match (stored JD)
+// Save JD
+export const saveJD = (payload) =>
+  api.post("/save-jd", payload).then((res) => res.data);
+
+// Resume ↔ JD match (NON-AUTH route, different base)
 export const getResumeJDMatch = (jdId) => {
   const ROOT = API_BASE.replace("/api", "");
   return axios.get(`${ROOT}/resume/match/${jdId}`).then((res) => res.data);
@@ -79,8 +99,8 @@ export const getResumeJDMatch = (jdId) => {
 export const getRoadmap = (jdId) =>
   api.get(`/roadmap/${jdId}`).then((res) => res.data);
 
-// Dashboard
+// Dashboard (PROTECTED)
 export const getDashboardData = () =>
-  api.get("/dashboard/data").then((res) => res.data);
+  api.get("/dashboard/summary").then((res) => res.data);
 
 export default api;

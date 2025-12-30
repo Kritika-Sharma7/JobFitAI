@@ -81,6 +81,25 @@
 
 // module.exports = analyzeResumeService;
 
+function normalizeExperienceLevel(exp) {
+  if (!exp) return "Fresher";
+
+  const normalized = exp
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace("–", "-");
+
+  const map = {
+    fresher: "Fresher",
+    intern: "Intern",
+    "0-2years": "1-3",
+    "1-3": "1-3",
+    "2-5years": "3+",
+    "3+": "3+"
+  };
+
+  return map[normalized] || "Fresher";
+}
 
 //==============Modified code 29 Dec Phase 5 ================
 const { extractSkillsFromText } = require("../utils/resume.util");
@@ -167,7 +186,7 @@ async function analyzeResumeService({ resume, profile, jobDescription, userId })
     parsedData: {
       skills: resumeSkills
     },
-    experienceLevel: profile.experience,
+    experienceLevel: normalizeExperienceLevel(profile.experience),
     roles: [profile.targetRole],
     scoresSnapshot: {
       atsScore,
