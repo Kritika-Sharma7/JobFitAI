@@ -25,10 +25,9 @@ const matchResumeWithJDService = require("../services/resume.match.service");
 
 const matchResumeWithJD = async (req, res) => {
   try {
-    const { jdId } = req.params;
+    const { jdId } = req.params;//RS 31Dec
 
-    // TEMP: replace later with auth middleware
-    const userId = "demo-user";
+    const userId = req.userId;//RS 31Dec
 
     const result = await matchResumeWithJDService({ jdId, userId });
 

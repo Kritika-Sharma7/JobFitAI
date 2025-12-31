@@ -3,21 +3,31 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 //TEMP SIGNUP ROUTE
+//RS modified Signup 31Dec
 exports.signup = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Create user
-    const user = await User.create({ email, password });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password required" });
+    }
 
-    // 2. Generate JWT (SAME as login)
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: "User already exists" });
+    }
+
+    const user = await User.create({
+      email,
+      passwordHash: password
+    });
+
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // 3. Return token + user
     return res.json({
       success: true,
       token,

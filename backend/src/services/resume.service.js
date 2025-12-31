@@ -189,9 +189,9 @@ async function analyzeResumeService({ resume, profile, jobDescription, userId })
     experienceLevel: normalizeExperienceLevel(profile.experience),
     roles: [profile.targetRole],
     scoresSnapshot: {
-      atsScore,
+      atsScore:null,//RS 31Dec
       matchScore,
-      fitScore
+      fitScore:null//RS 31Dec
     }
   });
 
@@ -211,13 +211,14 @@ async function analyzeResumeService({ resume, profile, jobDescription, userId })
       partial,
       missing
     },
-    roadmapSnapshot: [] // can be filled later
+    roadmapSnapshot: [] // can be filled later...IMPORTANT
   });
 
   /* ==========================================================
      ✅ FRONTEND RESPONSE (UNCHANGED SHAPE)
      ========================================================== */
   return {
+    resumeId: resumeDoc._id,//RS 31Dec
     parsedData: {
       skills: resumeSkills
     },

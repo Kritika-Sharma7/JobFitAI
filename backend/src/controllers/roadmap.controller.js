@@ -3,7 +3,7 @@ const generateRoadmapService = require("../services/roadmap.service");
 const generateRoadmap = async (req, res) => {
   try {
     const { jdId } = req.params;
-    const userId = req.query.userId || "demo-user";
+    const userId = req.userId;
 
     if (!jdId) {
       return res.status(400).json({ error: "jdId is required" });
@@ -19,3 +19,6 @@ const generateRoadmap = async (req, res) => {
 };
 
 module.exports = { generateRoadmap };
+
+
+//RS 31Dec
