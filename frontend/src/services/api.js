@@ -90,10 +90,19 @@ export const saveJD = (payload) =>
   api.post("/save-jd", payload).then((res) => res.data);
 
 // Resume ↔ JD match (NON-AUTH route, different base)
+// export const getResumeJDMatch = (jdId) => {
+//   const ROOT = API_BASE.replace("/api", "");
+//   return axios.get(`${ROOT}/resume/match/${jdId}`).then((res) => res.data);
+// };
+
+//RS changed to AUTH route 31Dec ... for resume match section 
+// ✅ FIXED (AUTH-SAFE, FRONTEND-SAFE)
 export const getResumeJDMatch = (jdId) => {
-  const ROOT = API_BASE.replace("/api", "");
-  return axios.get(`${ROOT}/resume/match/${jdId}`).then((res) => res.data);
+  return api
+    .get(`/resume/match/${jdId}`)
+    .then((res) => res.data);
 };
+
 
 // Roadmap
 export const getRoadmap = (jdId) =>

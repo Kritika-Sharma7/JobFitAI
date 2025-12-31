@@ -68,7 +68,7 @@ const analyzeJD = async (req, res) => {
 
   // 🔥 SAVE JD WITH SKILLS
   const jd = await JobDescription.create({
-    userId: "demo-user",//change later with auth middleware
+    userId: req.userId, //RS 31Dec
     content: jobDescription,
     role,
     experience,

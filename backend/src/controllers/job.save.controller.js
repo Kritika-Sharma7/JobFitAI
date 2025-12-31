@@ -3,7 +3,7 @@ const JobDescription = require("../models/JobDescription");
 const saveJD = async (req, res) => {
   try {
     const { jobDescription, role, experience } = req.body;
-    const userId = req.user?.id || "demo-user";
+    const userId = req.userId;//RS 31Dec
 
     if (!jobDescription || jobDescription.trim().length < 30) {
       return res.status(400).json({

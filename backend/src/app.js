@@ -67,7 +67,7 @@ app.use("/api", apiLimiter);
 app.use("/api", require("./routes/job.routes"));
 app.use("/api", require("./routes/test.routes"));
 app.use("/api/resume", require("./routes/resume.routes"));
-app.use("/resume", require("./routes/resume.match.routes"));
+app.use("/api/resume", require("./routes/resume.match.routes"));//RS 31Dec
 app.use("/api/ats", require("./routes/ats.routes"));
 app.use("/api", require("./routes/roadmap.routes"));
 app.use("/api", require("./routes/dashboard.routes"));
