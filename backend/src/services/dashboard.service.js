@@ -85,10 +85,44 @@ async function getDashboardData({ userId }) {
   const bestMatch =
     matchScores.length > 0 ? Math.max(...matchScores) : 0;
 
+  /* ---------- SKILL AGGREGATION ---------- */
+  const matchedSkillsCount = {};
+  const missingSkillsCount = {};
+  
+  analyses.forEach(a => {
+    // Count matched skills
+    if (a.skills?.matched && Array.isArray(a.skills.matched)) {
+      a.skills.matched.forEach(skill => {
+        const normalized = skill.toLowerCase().trim();
+        matchedSkillsCount[normalized] = (matchedSkillsCount[normalized] || 0) + 1;
+      });
+    }
+    
+    // Count missing skills
+    if (a.skills?.missing && Array.isArray(a.skills.missing)) {
+      a.skills.missing.forEach(skill => {
+        const normalized = skill.toLowerCase().trim();
+        missingSkillsCount[normalized] = (missingSkillsCount[normalized] || 0) + 1;
+      });
+    }
+  });
+
+  // Sort by frequency and get top skills
+  const topSkills = Object.entries(matchedSkillsCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([skill]) => skill.charAt(0).toUpperCase() + skill.slice(1));
+
+  const skillGaps = Object.entries(missingSkillsCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([skill]) => skill.charAt(0).toUpperCase() + skill.slice(1));
+
   /* ---------- RECENT JD SNAPSHOTS ---------- */
   const recentJDs = analyses.slice(0, 5).map(a => ({
     id: a._id,
     role: a.role,
+    company: a.company || "Unknown Company",
     experienceLevel: a.experienceLevel,
     matchScore: a.matchScore,
     createdAt: a.createdAt
@@ -108,7 +142,9 @@ async function getDashboardData({ userId }) {
     avgMatch,
     bestMatch,
     recentJDs,
-    resumeVersions
+    resumeVersions,
+    topSkills,
+    skillGaps
   };
 }
 

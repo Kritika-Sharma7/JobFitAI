@@ -10,6 +10,7 @@ const JDAnalysisSchema = new mongoose.Schema(
     resumeVersion: { type: Number, required: true },
 
     role: String,
+    company: String,
     experienceLevel: String,
 
     atsScore: Number,
