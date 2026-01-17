@@ -6,13 +6,15 @@ const resumeAnalyzeSchema = Joi.object({
   profile: Joi.object({
     experience: Joi.string().required(),
     targetRole: Joi.string().required(),
-    techStack: Joi.string().optional()
+    company: Joi.string().allow("").optional(),
+    techStack: Joi.string().allow("").optional()
   }).required(),
 
+  // Resume is optional when file is uploaded via multipart
   resume: Joi.object({
-    text: Joi.string().optional(),
+    text: Joi.string().allow("").optional(),
     fileUrl: Joi.string().optional()
-  }).or("text", "fileUrl")
-});
+  }).optional()
+}).unknown(true); // Allow extra fields from FormData
 
 module.exports = { resumeAnalyzeSchema };

@@ -1,94 +1,115 @@
-import React, { useEffect, useState, useId } from "react";
-
+import { useEffect, useState, useId } from "react";
+import { motion } from "framer-motion";
+import { Target, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 
 export default function MatchScore({ score }) {
-  // score expected: number (0–100)
   const safeScore = Math.min(Math.max(Number(score) || 0, 0), 100);
   const [animatedScore, setAnimatedScore] = useState(0);
+  
   useEffect(() => {
     setAnimatedScore(safeScore);
   }, [safeScore]);
 
-  const getColor = () => {
-    if (safeScore >= 75) return "from-green-500 to-emerald-500";
-    if (safeScore >= 50) return "from-yellow-400 to-orange-500";
-    return "from-red-500 to-pink-500";
+  const getStyle = () => {
+    if (safeScore >= 75) return { 
+      gradient: "from-emerald-500 to-cyan-500",
+      text: "text-emerald-400",
+      label: "Strong Match",
+      icon: CheckCircle,
+      description: "Your resume aligns well with this role"
+    };
+    if (safeScore >= 50) return { 
+      gradient: "from-amber-500 to-orange-500",
+      text: "text-amber-400",
+      label: "Partial Match",
+      icon: TrendingUp,
+      description: "Some skills match, others need development"
+    };
+    return { 
+      gradient: "from-red-500 to-rose-500",
+      text: "text-red-400",
+      label: "Low Match",
+      icon: AlertTriangle,
+      description: "Consider focusing on key skill gaps"
+    };
   };
 
-  const getLabel = () => {
-    if (safeScore >= 75) return "Strong Match";
-    if (safeScore >= 50) return "Partial Match";
-    return "Low Match";
-  };
-
-  // Unique gradient id to avoid SVG conflicts
+  const style = getStyle();
+  const Icon = style.icon;
   const gradientId = useId();
-  const RADIUS = 54;
-  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-      <h3 className="text-xl font-bold text-white mb-6">
-        Resume vs Job Match
-      </h3>
-
-      <div className="flex items-center gap-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-card p-6"
+    >
+      <div className="flex flex-col md:flex-row items-center gap-8">
         {/* Circular Progress */}
-        <div className="relative w-32 h-32">
-          <svg className="w-full h-full -rotate-90">
+        <div className="relative flex-shrink-0">
+          <svg width="160" height="160" className="transform -rotate-90">
             <circle
-              cx="64"
-              cy="64"
-              r="54"
-              stroke="currentColor"
-              strokeWidth="10"
+              cx="80"
+              cy="80"
+              r={radius}
               fill="none"
-              className="text-slate-800"
+              stroke="rgba(255,255,255,0.1)"
+              strokeWidth="10"
             />
-            <circle
-              cx="64"
-              cy="64"
-              r="54"
+            <motion.circle
+              cx="80"
+              cy="80"
+              r={radius}
+              fill="none"
               stroke={`url(#${gradientId})`}
               strokeWidth="10"
-              fill="none"
-              strokeDasharray={CIRCUMFERENCE}
-              strokeDashoffset={
-                CIRCUMFERENCE - (CIRCUMFERENCE * animatedScore) / 100
-              }
-
               strokeLinecap="round"
-              className="transition-all duration-700 ease-out"
+              strokeDasharray={circumference}
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
             />
             <defs>
-              <linearGradient id={gradientId}>
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#ec4899" />
+              <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#8b5cf6" />
+                <stop offset="100%" stopColor="#06b6d4" />
               </linearGradient>
             </defs>
           </svg>
 
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-3xl font-black text-white">
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <motion.span 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.5, type: "spring" }}
+              className="text-4xl font-bold text-white"
+            >
               {animatedScore}%
-            </span>
+            </motion.span>
           </div>
         </div>
 
-        {/* Text Info */}
-        <div className="space-y-2">
-          <span
-            className={`inline-block rounded-full px-4 py-1 text-sm font-semibold bg-gradient-to-r ${getColor()} text-white`}
-          >
-            {getLabel()}
-          </span>
+        {/* Info */}
+        <div className="flex-1 text-center md:text-left space-y-4">
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${style.gradient} bg-opacity-20 border border-white/10`}>
+            <Icon className="w-4 h-4 text-white" />
+            <span className="text-white font-semibold">{style.label}</span>
+          </div>
 
-          <p className="text-slate-400 text-sm max-w-xs">
+          <p className="text-dark-300">
+            {style.description}
+          </p>
+
+          <p className="text-sm text-dark-500">
             This score represents how closely your resume aligns with the
             job description based on skills, experience, and keywords.
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

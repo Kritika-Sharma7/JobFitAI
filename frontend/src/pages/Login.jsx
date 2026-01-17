@@ -1,245 +1,22 @@
-// import { useState, useEffect } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import useAuthStore from "../store/authStore";
-
-// export default function Login() {
-//   const navigate = useNavigate();
-
-//   const {
-//     login,
-//     isAuthenticated,
-//     loading,
-//     error
-//   } = useAuthStore();
-
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   // Redirect if already logged in
-//   useEffect(() => {
-//     if (isAuthenticated) {
-//       navigate("/dashboard");
-//     }
-//   }, [isAuthenticated, navigate]);
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     login(email, password);
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-//       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6">
-
-//         {/* Header */}
-//         <div className="text-center">
-//           <h1 className="text-3xl font-black text-white">Welcome Back</h1>
-//           <p className="text-slate-400 text-sm mt-1">
-//             Login to continue to JobFitAI
-//           </p>
-//         </div>
-
-//         {/* Form */}
-//         <form onSubmit={handleSubmit} className="space-y-4">
-//           {/* Email */}
-//           <div>
-//             <label className="block text-sm text-slate-300 mb-1">
-//               Email
-//             </label>
-//             <input
-//               type="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               required
-//               className="w-full rounded-xl bg-slate-800 border border-slate-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-//               placeholder="you@example.com"
-//             />
-//           </div>
-
-//           {/* Password */}
-//           <div>
-//             <label className="block text-sm text-slate-300 mb-1">
-//               Password
-//             </label>
-//             <input
-//               type="password"
-//               value={password}
-// //               onChange={(e) => setPassword(e.target.value)}
-// //               required
-// //               className="w-full rounded-xl bg-slate-800 border border-slate-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-// //               placeholder="••••••••"
-// //             />
-// //           </div>
-
-// //           {/* Error */}
-// //           {error && (
-// //             <p className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg px-3 py-2">
-// //               {error}
-// //             </p>
-// //           )}
-
-// //           {/* Submit */}
-// //           <button
-// //             type="submit"
-// //             disabled={loading}
-// //             className="w-full rounded-xl bg-violet-600 hover:bg-violet-700 transition text-white font-semibold py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-// //           >
-// //             {loading ? "Logging in..." : "Login"}
-// //           </button>
-// //         </form>
-
-// //         {/* Footer */}
-// //         <p className="text-center text-sm text-slate-400">
-// //           Don’t have an account?{" "}
-// //           <Link
-// //             to="/signup"
-// //             className="text-violet-400 hover:text-violet-300 font-medium"
-// //           >
-// //             Sign up
-// //           </Link>
-// //         </p>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-// import { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import useAuthStore from "../store/authStore";
-
-// export default function Login() {
-//   const navigate = useNavigate();
-//   const login = useAuthStore((s) => s.login);
-
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState("");
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError("");
-
-//     try {
-//       await login(email, password); // mock or real
-//       navigate("/analyze");
-//     } catch (err) {
-//       setError(err.message || "Invalid credentials");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-//       <div className="w-full max-w-md rounded-3xl border border-white/10
-//                       bg-gradient-to-br from-slate-900/80 to-slate-950/80
-//                       shadow-2xl ring-1 ring-violet-500/20 p-8">
-
-//         {/* Header */}
-//         <h1 className="text-3xl font-black text-white text-center">
-//           Welcome back
-//         </h1>
-//         <p className="text-slate-400 text-sm text-center mt-2">
-//           Login to continue optimizing your job matches
-//         </p>
-
-//         {/* Form */}
-//         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-
-//           <Input
-//             label="Email"
-//             type="email"
-//             value={email}
-//             onChange={setEmail}
-//             placeholder="you@example.com"
-//           />
-
-//           <Input
-//             label="Password"
-//             type="password"
-//             value={password}
-//             onChange={setPassword}
-//             placeholder="••••••••"
-//           />
-
-//           {error && (
-//             <p className="text-red-400 text-sm text-center">
-//               {error}
-//             </p>
-//           )}
-
-//           <button
-//             disabled={loading}
-//             className={`w-full py-3 rounded-xl font-semibold transition
-//               ${
-//                 loading
-//                   ? "bg-slate-700 cursor-not-allowed"
-//                   : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.01]"
-//               }`}
-//           >
-//             {loading ? "Logging in..." : "Login"}
-//           </button>
-//         </form>
-
-//         {/* Footer */}
-//         <p className="text-sm text-slate-400 text-center mt-6">
-//           Don’t have an account?{" "}
-//           <Link to="/signup" className="text-violet-400 hover:underline">
-//             Sign up
-//           </Link>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
-
-// /* ---------- Reusable Input ---------- */
-// function Input({ label, type, value, onChange, placeholder }) {
-//   return (
-//     <div>
-//       <label className="block text-sm text-slate-300 mb-1">
-//         {label}
-//       </label>
-//       <input
-//         type={type}
-//         value={value}
-//         onChange={(e) => onChange(e.target.value)}
-//         placeholder={placeholder}
-//         required
-//         className="w-full rounded-xl bg-slate-900/70
-//                    border border-white/10 px-4 py-3 text-white
-//                    placeholder-slate-500 focus:outline-none
-//                    focus:ring-2 focus:ring-violet-500"
-//       />
-//     </div>
-//   );
-// }
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Lock, Sparkles, ArrowRight, AlertCircle } from "lucide-react";
 import useAuthStore from "../store/authStore";
+import { ThreeBackground } from "../components/ui";
 
 export default function Login() {
   const navigate = useNavigate();
-
-  const {
-    login,
-    loading,
-    error,
-    isAuthenticated,
-    clearError
-  } = useAuthStore();
+  const { login, loading, error, isAuthenticated, clearError } = useAuthStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [focused, setFocused] = useState(null);
 
-  // Clear stale errors on page load
   useEffect(() => {
     clearError();
   }, [clearError]);
 
-  // Redirect after successful login
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard");
@@ -252,85 +29,160 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen pt-24 flex items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-xl shadow-2xl p-8">
+    <div className="min-h-screen flex items-center justify-center px-4 py-20 relative overflow-hidden">
+      {/* Three.js Background */}
+      <ThreeBackground variant="auth" />
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-white">Welcome back</h1>
-          <p className="text-slate-400 text-sm mt-2">
-            Sign in to continue to JobFit AI
-          </p>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-            {error}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md relative z-10"
+      >
+        {/* Logo/Brand */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-purple to-accent-cyan mb-4 shadow-lg shadow-accent-purple/30">
+            <Sparkles className="w-8 h-8 text-white" />
           </div>
-        )}
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
+          <p className="text-dark-300">Sign in to continue to JobFit AI</p>
+        </motion.div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                clearError();
-              }}
-              placeholder="you@example.com"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
+        {/* Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-card p-8"
+        >
+          {/* Error Alert */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3"
+            >
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+              <p className="text-sm text-red-400">{error}</p>
+            </motion.div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                clearError();
-              }}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-dark-200">
+                Email address
+              </label>
+              <div className="relative">
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors z-10 ${
+                  focused === 'email' ? 'text-accent-purple' : 'text-dark-400'
+                }`}>
+                  <Mail className="w-5 h-5" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearError();
+                  }}
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                  placeholder="you@example.com"
+                  className={`w-full px-4 py-3.5 pl-12 rounded-xl bg-dark-800/50 border text-white placeholder-dark-400 focus:outline-none transition-all ${
+                    focused === 'email' 
+                      ? 'border-accent-purple/50 ring-2 ring-accent-purple/20' 
+                      : 'border-white/10 hover:border-white/20'
+                  }`}
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
-              loading
-                ? "bg-slate-700 cursor-not-allowed"
-                : "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02]"
-            }`}
-          >
-            {loading ? "Signing in..." : "Login"}
-          </button>
-        </form>
+            {/* Password Field */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-dark-200">
+                  Password
+                </label>
+                <button type="button" className="text-xs text-accent-purple hover:text-accent-cyan transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative">
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors z-10 ${
+                  focused === 'password' ? 'text-accent-purple' : 'text-dark-400'
+                }`}>
+                  <Lock className="w-5 h-5" />
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    clearError();
+                  }}
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                  placeholder="••••••••"
+                  className={`w-full px-4 py-3.5 pl-12 rounded-xl bg-dark-800/50 border text-white placeholder-dark-400 focus:outline-none transition-all ${
+                    focused === 'password' 
+                      ? 'border-accent-purple/50 ring-2 ring-accent-purple/20' 
+                      : 'border-white/10 hover:border-white/20'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+              className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-accent-purple to-accent-cyan shadow-lg shadow-accent-purple/25 hover:shadow-accent-purple/40 transition-all ${
+                loading ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign in</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
 
         {/* Footer */}
-        <p className="text-sm text-slate-400 text-center mt-6">
-          Don’t have an account?{" "}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center text-dark-400 mt-6"
+        >
+          Don't have an account?{" "}
           <Link
             to="/signup"
             onClick={clearError}
-            className="text-violet-400 hover:underline"
+            className="text-accent-purple hover:text-accent-cyan transition-colors font-medium"
           >
-            Sign up
+            Sign up free
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

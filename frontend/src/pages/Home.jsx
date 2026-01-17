@@ -1,166 +1,346 @@
-// src/pages/Home.jsx
+// src/pages/Home.jsx - Premium Landing Page with Three.js
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Shield, 
+  Target, 
+  TrendingUp, 
+  ArrowRight,
+  Play,
+  Star,
+  Sparkles,
+  Zap,
+  Brain,
+  FileCheck,
+  Users
+} from 'lucide-react';
+import { ThreeBackground } from '../components/ui';
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
 
 function Home() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const features = [
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      ),
-      title: 'Instant Job Matching',
-      description: 'Upload your resume and get AI-powered compatibility scores against any job description in seconds.'
+      icon: Shield,
+      title: 'ATS Score Analysis',
+      description: 'Ensure your resume passes automated filters with our AI-powered ATS compatibility scoring.'
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
-      title: 'Skill Gap Analysis',
-      description: 'Discover exactly which skills and keywords you need to add to become the perfect candidate.'
+      icon: Target,
+      title: 'Resume vs Job Description',
+      description: 'See how well you align with any role. Get instant match scores and detailed breakdowns.'
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-      title: 'Project Recommendations',
-      description: 'Get personalized project suggestions that will fill your gaps and make you stand out.'
+      icon: TrendingUp,
+      title: 'Skill Gap Insights',
+      description: 'Discover which skills and experiences you need to become the perfect candidate.'
     }
   ];
 
   const stats = [
     { value: '98%', label: 'Accuracy Rate' },
     { value: '<3s', label: 'Analysis Time' },
-    { value: '50K+', label: 'Resumes Analyzed' }
+    { value: '50K+', label: 'Resumes Analyzed' },
+    { value: '4.9', label: 'User Rating', hasStar: true }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
-      {/* Gradient Mesh Background */}
-      <div className="absolute inset-0 gradient-mesh opacity-40"></div>
-      <div className="absolute inset-0 dot-pattern"></div>
+    <div className="min-h-screen bg-dark-900 relative overflow-hidden">
+      {/* Three.js Background */}
+      <ThreeBackground variant="landing" />
       
-      {/* Animated Orbs */}
-      <div className="absolute top-20 left-10 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      {/* Additional gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-dark-900/50 to-dark-900 pointer-events-none" />
+      <div className="absolute inset-0 bg-mesh opacity-30" />
       
-      <div className="relative z-10 pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Hero Section */}
-          <div className={`text-center mb-32 ${mounted ? 'animate-slide-up' : 'opacity-0'}`}>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-light border border-violet-500/20 mb-8">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold text-gray-300">AI-Powered Career Intelligence Platform</span>
-            </div>
+      {/* Animated gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent-cyan/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
 
-            {/* Main Headline */}
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-tight">
-              <span className="block text-white text-shadow-glow">Stop Guessing.</span>
-              <span className="block bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x">
-                Start Landing.
-              </span>
-            </h1>
+      {/* Hero Section */}
+      <section className="relative z-10 pt-32 pb-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={staggerContainer}
+            className="text-center max-w-4xl mx-auto"
+          >
+            {/* Badge */}
+            <motion.div
+              variants={fadeInUp}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-light border border-accent-purple/20 mb-8"
+            >
+              <Sparkles className="w-4 h-4 text-accent-purple" />
+              <span className="text-sm font-medium text-gray-300">AI-Powered Career Intelligence</span>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              variants={fadeInUp}
+              className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight"
+            >
+              <span className="text-white">Optimize Your Resume</span>
+              <br />
+              <span className="text-white">for Every Job — </span>
+              <span className="gradient-text">Instantly</span>
+            </motion.h1>
 
             {/* Subheadline */}
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-              JobFit AI analyzes your resume against any job posting, reveals hidden gaps, and recommends
-              <span className="text-violet-400 font-semibold"> the exact projects </span>
-              you need to become the perfect candidate.
-            </p>
+            <motion.p
+              variants={fadeInUp}
+              className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+            >
+              AI-powered resume scoring, and skill gap insights tailored to any role. 
+              Land more interviews with data-driven optimization.
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            >
               <Link
-                to="/analyze"
-                className="group relative px-8 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl font-bold text-lg text-white overflow-hidden shadow-2xl shadow-violet-500/30 hover:shadow-violet-500/50 transition-all"
+                to="/signup"
+                className="group btn-primary text-lg px-8 py-4 flex items-center gap-2"
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                <span className="relative z-10 flex items-center gap-2">
-                  Analyze My Resume
-                  <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
+                <span>Get Started Free</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              
-              <button className="group px-8 py-4 rounded-2xl font-bold text-lg text-white glass-light border border-white/10 hover:border-violet-500/50 transition-all">
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                  Watch Demo
-                </span>
+              <button className="btn-secondary text-lg px-8 py-4 flex items-center gap-2">
+                <Play className="w-5 h-5" />
+                <span>View Demo</span>
               </button>
-            </div>
+            </motion.div>
 
             {/* Stats */}
-            <div className="flex flex-wrap items-center justify-center gap-12">
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-wrap items-center justify-center gap-8 md:gap-12"
+            >
               {stats.map((stat, idx) => (
                 <div key={idx} className="text-center">
-                  <div className="text-4xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent mb-1">
-                    {stat.value}
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-3xl md:text-4xl font-bold gradient-text">{stat.value}</span>
+                    {stat.hasStar && <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />}
                   </div>
-                  <div className="text-sm text-gray-500 font-semibold">{stat.label}</div>
+                  <p className="text-sm text-gray-500 font-medium mt-1">{stat.label}</p>
                 </div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Features Grid */}
-          <div className={`grid md:grid-cols-3 gap-6 mb-32 ${mounted ? 'animate-scale-in' : 'opacity-0'}`} style={{ animationDelay: '0.3s' }}>
-            {features.map((feature, idx) => (
-              <div
-                key={idx}
-                className="group relative p-8 rounded-3xl glass-light border border-white/5 hover:border-violet-500/30 card-lift"
-              >
-                {/* Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 to-fuchsia-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          {/* Product Mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="relative mt-20 max-w-5xl mx-auto"
+          >
+            {/* Glow behind mockup */}
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-purple/30 to-accent-cyan/30 rounded-3xl blur-3xl transform scale-95" />
+            
+            {/* Mockup container */}
+            <div className="relative glass-card rounded-2xl p-2 shadow-2xl">
+              <div className="rounded-xl overflow-hidden bg-dark-800">
+                {/* Browser-like header */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-dark-900/50 border-b border-white/5">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <div className="px-4 py-1.5 rounded-lg bg-dark-700/50 text-xs text-gray-400">
+                      app.jobfitai.com/dashboard
+                    </div>
+                  </div>
+                </div>
                 
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="inline-flex p-3 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-2xl text-white mb-5 group-hover:scale-110 group-hover:rotate-3 transition-transform">
-                    {feature.icon}
+                {/* Dashboard Preview */}
+                <div className="p-6 space-y-4">
+                  {/* Insight Banner */}
+                  <div className="insight-banner flex items-center gap-4">
+                    <span className="text-2xl">🚀</span>
+                    <div>
+                      <p className="text-white font-semibold">Your best match improved by <span className="text-green-400">+12%</span> this week</p>
+                      <p className="text-sm text-gray-400">Keep optimizing to reach 90%+</p>
+                    </div>
                   </div>
                   
-                  {/* Content */}
-                  <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {[
+                      { value: '1,245', label: 'Resumes analyzed', change: '+3%' },
+                      { value: '890', label: 'JDs analyzed', change: '+3%' },
+                      { value: '78%', label: 'Average match %', change: '+3%' },
+                      { value: '92%', label: 'Best match %', change: '' }
+                    ].map((stat, idx) => (
+                      <div key={idx} className="stat-card text-center">
+                        <p className="text-2xl font-bold text-white">{stat.value}</p>
+                        <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+                        {stat.change && (
+                          <p className="text-xs text-green-400 mt-1">↑ {stat.change} this week</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Chart Placeholder */}
+                  <div className="glass-card rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-white">Match Progress</h3>
+                        <p className="text-xs text-gray-500">Match Score Trends</p>
+                      </div>
+                    </div>
+                    {/* Simplified chart visualization */}
+                    <div className="h-32 flex items-end gap-1">
+                      {[40, 45, 50, 55, 65, 60, 70, 75, 72, 80, 78, 85].map((h, i) => (
+                        <div 
+                          key={i}
+                          className="flex-1 bg-gradient-to-t from-accent-purple to-accent-cyan rounded-t opacity-60"
+                          style={{ height: `${h}%` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Everything you need to land your dream job
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Our AI analyzes your resume against real job requirements, giving you actionable insights to improve your chances.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {features.map((feature, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="feature-card group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-accent-cyan/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <feature.icon className="w-7 h-7 text-accent-purple" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Social Proof */}
-          <div className="text-center glass-heavy border border-white/5 rounded-3xl p-12 max-w-4xl mx-auto">
-            <div className="flex items-center justify-center gap-2 mb-6">
+      {/* Social Proof Section */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="glass-card rounded-3xl p-10 text-center"
+          >
+            <div className="flex items-center justify-center gap-1 mb-6">
               {[...Array(5)].map((_, i) => (
-                <svg key={i} className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                <Star key={i} className="w-6 h-6 text-yellow-400 fill-yellow-400" />
               ))}
             </div>
-            <blockquote className="text-2xl text-gray-300 font-medium mb-4">
-              "JobFit AI helped me identify the exact skills I was missing. After completing their recommended projects, I landed 3 interviews in two weeks."
+            <blockquote className="text-2xl text-white font-medium mb-6 leading-relaxed">
+              "JobfitAI helped me identify exactly what I was missing. I landed 3 interviews in two weeks!"
             </blockquote>
-            <div className="text-sm text-gray-500">
-              <div className="font-semibold text-white">Sarah Chen</div>
-              <div>Software Engineer @ Google</div>
+            <div>
+              <p className="font-semibold text-white">Sarah Chen</p>
+              <p className="text-sm text-gray-500">Software Engineer @ Google</p>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="glass-card rounded-3xl p-12 text-center relative overflow-hidden"
+          >
+            {/* Gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-purple/10 to-accent-cyan/10" />
+            
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Ready to land your dream job?
+              </h2>
+              <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+                Join thousands of job seekers who've improved their match scores and landed more interviews.
+              </p>
+              <Link
+                to="/signup"
+                className="btn-primary text-lg px-10 py-4 inline-flex items-center gap-2"
+              >
+                <span>Sign Up Now</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 py-12 px-6 border-t border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent-purple to-accent-cyan rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-white">JobfitAI</span>
+          </div>
+          <p className="text-sm text-gray-500">
+            © 2026 JobfitAI. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6">
+            <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Terms</a>
+            <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Contact</a>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

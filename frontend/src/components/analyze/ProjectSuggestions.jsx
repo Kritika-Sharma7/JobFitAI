@@ -1,74 +1,105 @@
+import { motion } from "framer-motion";
+import { Lightbulb, ArrowRight, ExternalLink, Code2 } from "lucide-react";
+
 function ProjectSuggestions({ projects }) {
   if (!projects || !projects.length) return null;
 
   return (
-    <div className="glass-heavy border border-white/10 rounded-3xl p-8">
-      <h3 className="text-xl font-bold text-white mb-6">
-        JD-Matched Projects
-      </h3>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-card p-8"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+          <Lightbulb className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white">Recommended Projects</h3>
+          <p className="text-dark-400 text-sm">Build these to strengthen your application</p>
+        </div>
+      </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {projects.map((project, idx) => (
-          <div
+          <motion.div
             key={idx}
-            className="border border-white/10 rounded-2xl p-6 bg-slate-900/40"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className="group relative p-6 rounded-xl bg-dark-800/50 border border-white/5 hover:border-accent-purple/30 transition-all"
           >
-            {/* 1️⃣ Project Title */}
-            <h4 className="text-lg font-semibold text-violet-300">
-              {project.title}
-            </h4>
+            {/* Project Number Badge */}
+            <div className="absolute -left-3 top-6 w-6 h-6 rounded-full bg-gradient-to-br from-accent-purple to-accent-cyan flex items-center justify-center text-xs font-bold text-white">
+              {idx + 1}
+            </div>
 
-            {/* 2️⃣ Skills Proved */}
-            {project.skillsProved?.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {project.skillsProved.map((skill, i) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1 rounded-full text-xs font-medium
-                               bg-violet-500/15 text-violet-300
-                               border border-violet-500/30"
-                  >
-                    {skill}
-                  </span>
-                ))}
+            <div className="ml-4">
+              {/* Project Title */}
+              <div className="flex items-start justify-between gap-4">
+                <h4 className="text-lg font-semibold text-white group-hover:text-accent-purple transition-colors">
+                  {project.title}
+                </h4>
+                <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-white/10">
+                  <ExternalLink className="w-4 h-4 text-dark-400" />
+                </button>
               </div>
-            )}
 
-            {/* 3️⃣ WHY this project (JD Mapping) */}
-            {project.jdMapping?.length > 0 && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-400 mb-2">
-                  Why this project improves your job fit:
-                </p>
-                <ul className="list-disc ml-5 text-sm text-gray-300 space-y-1">
-                  {project.jdMapping.map((reason, i) => (
-                    <li key={i}>{reason}</li>
+              {/* Skills Tags */}
+              {project.skillsProved?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {project.skillsProved.map((skill, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-accent-purple/10 text-accent-purple border border-accent-purple/20"
+                    >
+                      <Code2 className="w-3 h-3" />
+                      {skill}
+                    </span>
                   ))}
-                </ul>
-              </div>
-            )}
-            
-            
-            {/* Fallback if no JD mapping */}
-            {!project.jdMapping?.length && (
-              <p className="mt-4 text-sm text-gray-500">
-                {/* This project aligns well with the job description. */}
-                {/* RS CHANGED THE BELOW SECTION , ABOVE WAS INITIAL CODE */}
-                <span className="font-semibold text-slate-300">
-                  Why recruiters care:
-                </span>{" "}
-                {project.whyItMatters}
-              </p>
-            )}
-          </div>
+                </div>
+              )}
+
+              {/* JD Mapping - Why this project */}
+              {project.jdMapping?.length > 0 && (
+                <div className="mt-4 p-4 rounded-lg bg-dark-900/50 border border-white/5">
+                  <p className="text-sm font-medium text-dark-200 mb-2 flex items-center gap-2">
+                    <ArrowRight className="w-4 h-4 text-accent-cyan" />
+                    How this improves your job fit:
+                  </p>
+                  <ul className="space-y-2">
+                    {project.jdMapping.map((reason, i) => (
+                      <li key={i} className="text-sm text-dark-300 flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan mt-2 flex-shrink-0" />
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Fallback - Why it matters */}
+              {!project.jdMapping?.length && project.whyItMatters && (
+                <div className="mt-4 p-4 rounded-lg bg-dark-900/50 border border-white/5">
+                  <p className="text-sm text-dark-300">
+                    <span className="font-medium text-white">Why recruiters care: </span>
+                    {project.whyItMatters}
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Phase 3 explainability hint */}
-      <p className="text-xs text-gray-400 mt-6">
-        These projects are selected to directly match responsibilities mentioned in the job description.
-      </p>
-    </div>
+      {/* Info Footer */}
+      <div className="mt-6 pt-4 border-t border-white/5">
+        <p className="text-xs text-dark-500 flex items-center gap-2">
+          <Lightbulb className="w-4 h-4" />
+          Projects are selected to directly address skills and responsibilities from the job description.
+        </p>
+      </div>
+    </motion.div>
   );
 }
 

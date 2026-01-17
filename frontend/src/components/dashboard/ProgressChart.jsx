@@ -1,89 +1,99 @@
 import React from "react";
+import { motion } from "framer-motion";
+import { TrendingUp } from "lucide-react";
 
 export default function ProgressChart({ recentJDMatches = [] }) {
   // Empty state
   if (!recentJDMatches.length) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6">
-        <h3 className="text-lg font-bold text-white mb-1">
-          Match Score Trend
-        </h3>
-        <p className="text-slate-400 text-sm">
-          Analyze job descriptions to start tracking progress.
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-accent-cyan/20 flex items-center justify-center mb-4">
+          <TrendingUp className="w-8 h-8 text-accent-purple" />
+        </div>
+        <h3 className="text-lg font-semibold text-white mb-2">No data yet</h3>
+        <p className="text-gray-500 text-sm max-w-xs">
+          Analyze job descriptions to start tracking your match score progress.
         </p>
       </div>
     );
   }
 
+  // Calculate max for scaling
+  const maxScore = Math.max(...recentJDMatches.map(m => m.matchScore || 0), 100);
+
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6">
-      {/* Header */}
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-white">
-          Match Score Trend
-        </h3>
-        <p className="text-slate-400 text-sm">
-          Your resume alignment is improving across recent job descriptions
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Chart Area */}
+      <div className="relative h-48">
+        {/* Grid lines */}
+        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+          {[100, 75, 50, 25, 0].map((val) => (
+            <div key={val} className="flex items-center gap-2">
+              <span className="text-[10px] text-gray-600 w-8 text-right">{val}%</span>
+              <div className="flex-1 h-px bg-white/5" />
+            </div>
+          ))}
+        </div>
 
-      {/* Chart */}
-      <div className="relative">
-        {/* Baseline */}
-        <div className="absolute bottom-10 left-0 right-0 h-px bg-slate-800" />
-
-        <div className="flex items-end gap-6 h-44">
+        {/* Bars */}
+        <div className="absolute inset-0 pl-10 flex items-end gap-4">
           {recentJDMatches.map((item, index) => {
+            const height = ((item.matchScore || 0) / maxScore) * 100;
             const prev = recentJDMatches[index - 1];
-            const trend =
-              prev && item.matchScore > prev.matchScore
-                ? "up"
-                : prev && item.matchScore < prev.matchScore
-                ? "down"
-                : null;
+            const trend = prev 
+              ? item.matchScore > prev.matchScore ? 'up' 
+              : item.matchScore < prev.matchScore ? 'down' 
+              : null 
+              : null;
 
             return (
-              <div key={item.jdId} className="flex-1 text-center">
+              <motion.div
+                key={item.jdId || index}
+                initial={{ height: 0 }}
+                animate={{ height: `${height}%` }}
+                transition={{ duration: 0.8, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
+                className="flex-1 relative group cursor-pointer"
+              >
                 {/* Bar */}
-                <div className="relative h-full flex items-end">
-                  <div
-                    className="w-full rounded-t-lg 
-                               bg-gradient-to-t from-violet-600 to-indigo-500
-                               transition-all duration-700 ease-out
-                               hover:scale-[1.03] hover:shadow-lg hover:shadow-violet-500/30"
-                    style={{ height: `${item.matchScore}%` }}
-                  >
-                    {/* subtle highlight */}
-                    <div className="absolute inset-0 bg-white/5 rounded-t-lg" />
+                <div 
+                  className="absolute inset-0 rounded-t-lg bg-gradient-to-t from-accent-purple to-accent-cyan opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={{ minHeight: '8px' }}
+                />
+                
+                {/* Glow on hover */}
+                <div className="absolute inset-0 rounded-t-lg bg-gradient-to-t from-accent-purple to-accent-cyan blur-lg opacity-0 group-hover:opacity-30 transition-opacity" />
+
+                {/* Tooltip */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="glass-card px-3 py-2 rounded-lg text-center whitespace-nowrap">
+                    <p className="text-sm font-bold text-white">{item.matchScore}%</p>
+                    <p className="text-[10px] text-gray-400">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-
-                {/* Label */}
-                <div className="mt-3 space-y-0.5">
-                  <div className="flex items-center justify-center gap-1 text-xs font-semibold text-white">
-                    <span>{item.matchScore}%</span>
-
-                    {trend && (
-                      <span
-                        className={
-                          trend === "up"
-                            ? "text-emerald-400"
-                            : "text-red-400"
-                        }
-                      >
-                        {trend === "up" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-[11px] text-slate-400">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
+      </div>
+
+      {/* X-axis labels */}
+      <div className="flex gap-4 pl-10">
+        {recentJDMatches.map((item, index) => {
+          const date = new Date(item.createdAt);
+          const formattedDate = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+          return (
+            <div key={item.jdId || index} className="flex-1 text-center">
+              <p className="text-xs text-gray-500">
+                {formattedDate}
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
